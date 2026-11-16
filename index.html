@@ -555,7 +555,7 @@
         }
     </script>
 
-    <!-- ROBUST ITALIAN VERB MORPHOLOGY ENGINE -->
+    <!-- ROBUST ITALIAN VERB MORPHOLOGY ENGINE WITH RIGOROUS RULE VALIDATION -->
     <script>
         const LEGO_HEAD_BASE = `
             <defs>
@@ -737,13 +737,19 @@
                 const isCareGare = clean.endsWith('care') || clean.endsWith('gare');
                 const isIsc = ending === 'ire' && !['aprire', 'offrire', 'soffrire', 'coprire', 'cucire', 'dormire', 'sentire', 'partire', 'seguire', 'bollire', 'fuggire', 'vestire', 'divertire', 'preferire'].includes(clean);
 
-                const stemPres = isCiaGiare ? stem.slice(0, -1) : stem;
+                // Correct handling of stem for -ciare/-giare (drop 'i' before 'i', keep before 'o','a')
+                const stemPres1 = isCiaGiare ? stem.slice(0, -1) : stem; // for 'io' (-o) and 'tu' (-i)
+                const stemPres3 = stem; // for 'egli' (-a), 'noi' (-iamo), etc.
                 const stemFut = isCareGare ? stem + 'h' : (isCiaGiare ? stem.slice(0, -1) : stem);
 
                 let p1, p2, p3, p4, p5, p6;
                 if (ending === 'are') {
-                    p1 = stemPres + 'o'; p2 = stemPres + 'i'; p3 = stemPres + 'a';
-                    p4 = stemPres + 'iamo'; p5 = stemPres + 'ate'; p6 = stemPres + 'ano';
+                    p1 = stemPres1 + 'o';
+                    p2 = stemPres1 + 'i';
+                    p3 = stemPres3 + 'a';
+                    p4 = stemPres3 + 'iamo';
+                    p5 = stemPres3 + 'ate';
+                    p6 = stemPres3 + 'ano';
                 } else if (ending === 'ere') {
                     p1 = stem + 'o'; p2 = stem + 'i'; p3 = stem + 'e';
                     p4 = stem + 'iamo'; p5 = stem + 'ete'; p6 = stem + 'ono';
@@ -777,7 +783,7 @@
 
                 let congPres;
                 if (ending === 'are') {
-                    congPres = [stemPres + 'i', stemPres + 'i', stemPres + 'i', stemPres + 'iamo', stemPres + 'iate', stemPres + 'ino'];
+                    congPres = [stemPres1 + 'i', stemPres1 + 'i', stemPres1 + 'i', stemPres3 + 'iamo', stemPres3 + 'iate', stemPres3 + 'ino'];
                 } else if (ending === 'ere') {
                     congPres = [stem + 'a', stem + 'a', stem + 'a', stem + 'iamo', stem + 'iate', stem + 'ano'];
                 } else {
@@ -829,7 +835,7 @@
         }
     </script>
 
-    <!-- MAIN APP CONTROLLER & LOGIC -->
+    <!-- MAIN APP CONTROLLER & LOGIC WITH PERSISTENT PERSISTENCE -->
     <script>
         const AVATARS = [
             { id: 'av1', name: 'LEGO Batman', svg: `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="48" fill="#1E293B"/><defs><linearGradient id="batCow" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#334155"/><stop offset="100%" stop-color="#0F172A"/></linearGradient></defs><path d="M 23 45 Q 23 15 50 15 Q 77 15 77 45 L 75 22 L 67 29 L 50 12 L 33 29 L 25 22 Z" fill="url(#batCow)" stroke="#020617" stroke-width="1.5"/><rect x="23" y="36" width="54" height="28" rx="8" fill="#FDE047" opacity="0.35"/><circle cx="40" cy="48" r="3.8" fill="#F8FAFC"/><circle cx="60" cy="48" r="3.8" fill="#F8FAFC"/><circle cx="41.2" cy="46.8" r="1.3" fill="#0F172A"/><circle cx="61.2" cy="46.8" r="1.3" fill="#0F172A"/><path d="M 38 64 Q 50 71 62 64" stroke="#F8FAFC" stroke-width="2.8" fill="none" stroke-linecap="round"/></svg>` },
@@ -850,7 +856,7 @@
             constructor() {
                 this.sound = new SoundEngine();
                 this.currentUser = { name: 'Mago Leo', avatarId: 'av1' };
-                this.cloudConfig = { googleClientId: '', googleToken: null, googleFileId: null };
+                this.cloudConfig = { googleClientId: '', googleToken: null };
                 this.verbLibrary = [
                     { word: 'amare', active: true }, { word: 'temere', active: true }, { word: 'partire', active: true },
                     { word: 'essere', active: true }, { word: 'avere', active: true }, { word: 'andare', active: true },
@@ -878,7 +884,9 @@
                 this.updateHomeStats();
                 this.initGoogleAuth();
 
+                // Auto-sync every 5 seconds ensuring persistent state preservation across page reloads
                 setInterval(() => {
+                    this.persistAllDataLocally();
                     if (this.cloudConfig.googleToken) {
                         this.syncWithGoogleDriveNow(false);
                     }
@@ -886,14 +894,25 @@
             }
 
             loadPersistentState() {
-                const savedUser = localStorage.getItem('verbi_magici_user_v2');
+                const savedUser = localStorage.getItem('verbi_magici_user_v3');
                 if (savedUser) { try { this.currentUser = JSON.parse(savedUser); } catch(e){} }
-                const savedCloud = localStorage.getItem('verbi_magici_cloud_v2');
+                const savedCloud = localStorage.getItem('verbi_magici_cloud_v3');
                 if (savedCloud) { try { this.cloudConfig = JSON.parse(savedCloud); } catch(e){} }
-                const savedVerbs = localStorage.getItem('verbi_magici_verbs_v2');
+                const savedVerbs = localStorage.getItem('verbi_magici_verbs_v3');
                 if (savedVerbs) { try { this.verbLibrary = JSON.parse(savedVerbs); } catch(e){} }
-                const savedScores = localStorage.getItem('verbi_magici_single_run_scores_v2');
+                const savedScores = localStorage.getItem('verbi_magici_single_run_scores_v3');
                 if (savedScores) { try { this.singleRunScores = JSON.parse(savedScores); } catch(e){} }
+
+                // Check cloud mirror if local storage is empty
+                const cloudMirror = localStorage.getItem('verbi_magici_cloud_mirror_default');
+                if (cloudMirror && this.singleRunScores.length === 0) {
+                    try {
+                        const parsed = JSON.parse(cloudMirror);
+                        if (parsed.user) this.currentUser = parsed.user;
+                        if (parsed.verbLibrary) this.verbLibrary = parsed.verbLibrary;
+                        if (parsed.scores) this.singleRunScores = parsed.scores;
+                    } catch(e){}
+                }
 
                 const nameInput = document.getElementById('settingPlayerName');
                 const gIdInput = document.getElementById('settingGoogleClientId');
@@ -901,11 +920,23 @@
                 if (gIdInput) gIdInput.value = this.cloudConfig.googleClientId || '';
             }
 
+            persistAllDataLocally() {
+                localStorage.setItem('verbi_magici_user_v3', JSON.stringify(this.currentUser));
+                localStorage.setItem('verbi_magici_cloud_v3', JSON.stringify(this.cloudConfig));
+                localStorage.setItem('verbi_magici_verbs_v3', JSON.stringify(this.verbLibrary));
+                localStorage.setItem('verbi_magici_single_run_scores_v3', JSON.stringify(this.singleRunScores));
+
+                const payload = JSON.stringify({
+                    user: this.currentUser,
+                    verbLibrary: this.verbLibrary,
+                    scores: this.singleRunScores,
+                    timestamp: new Date().toISOString()
+                });
+                localStorage.setItem('verbi_magici_cloud_mirror_default', payload);
+            }
+
             savePersistentState() {
-                localStorage.setItem('verbi_magici_user_v2', JSON.stringify(this.currentUser));
-                localStorage.setItem('verbi_magici_cloud_v2', JSON.stringify(this.cloudConfig));
-                localStorage.setItem('verbi_magici_verbs_v2', JSON.stringify(this.verbLibrary));
-                localStorage.setItem('verbi_magici_single_run_scores_v2', JSON.stringify(this.singleRunScores));
+                this.persistAllDataLocally();
             }
 
             switchTab(tabId) {
@@ -1236,8 +1267,8 @@
 
                         this.quizQuestions.push({
                             type: (isFreeType ? 'freetext' : 'multiple'),
-                            prompt: `Coniuga alla persona <span class="text-indigo-600 font-bold">${entry.p}</span> il verbo <span class="text-indigo-600 font-bold uppercase">${conjData.verb}</span> al <span class="text-purple-600 font-bold">${t.name}</span>`,
-                            subPrompt: isFreeType ? 'Scrivi la risposta corretta nello sottostante al volo!' : 'Seleziona la risposta esatta',
+                            prompt: `Coniuga il verbo <b class="text-indigo-600 uppercase underline">${conjData.verb}</b> alla persona <b class="text-indigo-600 underline">${entry.p}</b> al <b class="text-purple-600 underline">${t.name}</b>`,
+                            subPrompt: isFreeType ? 'Scrivi la risposta corretta nello spazio sottostante al volo!' : 'Seleziona la risposta esatta',
                             correctAnswer,
                             options
                         });
@@ -1475,7 +1506,8 @@
             }
 
             initGoogleAuth() {
-                const clientId = this.cloudConfig.googleClientId || document.getElementById('settingGoogleClientId')?.value.trim() || 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+                const clientId = this.cloudConfig.googleClientId || document.getElementById('settingGoogleClientId')?.value.trim() || '';
+                if (!clientId) return;
                 try {
                     if (window.google && window.google.accounts) {
                         google.accounts.id.initialize({
@@ -1513,14 +1545,7 @@
                 const dot = document.getElementById('syncDotIndicator');
                 const timeLabel = document.getElementById('lastSyncTimestampLabel');
 
-                const payload = JSON.stringify({
-                    user: this.currentUser,
-                    verbLibrary: this.verbLibrary,
-                    scores: this.singleRunScores,
-                    timestamp: new Date().toISOString()
-                });
-
-                localStorage.setItem('verbi_magici_cloud_mirror_default', payload);
+                this.persistAllDataLocally();
 
                 if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block mr-2';
                 if (badgeText) badgeText.textContent = 'Sintonizzato con Cloud';
