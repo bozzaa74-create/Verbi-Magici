@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html lang="it" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verbi Magici - L'Avventura dei Verbi</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Fredoka & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Identity Services for Google Login & Drive Sync -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'game': ['Fredoka', 'sans-serif'],
+                        'sans': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .font-game { font-family: 'Fredoka', cursive, sans-serif; }
+        .btn-3d {
+            transition: all 0.1s ease;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+        }
+        .btn-3d:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.15);
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+    </style>
+</head>
+<body class="h-full bg-slate-100 font-sans text-slate-800 antialiased selection:bg-indigo-500 selection:text-white flex flex-col">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="bg-indigo-600 shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="app.switchTab('home')">
+                <div class="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center text-white text-xl animate-float">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <div>
+                    <h1 class="font-game text-xl sm:text-2xl font-bold text-white tracking-wide">Verbi Magici</h1>
+                    <p class="text-[10px] text-indigo-200 font-medium -mt-1 hidden sm:block">L'Avventura della Coniugazione</p>
+                </div>
+            </div>
+
+            <!-- NAV TABS -->
+            <nav class="hidden md:flex items-center space-x-1">
+                <button onclick="app.switchTab('home')" id="nav-home" class="px-4 py-2 rounded-xl text-sm font-game font-semibold text-white bg-white/10 hover:bg-white/20 transition cursor-pointer">
+                    <i class="fa-solid fa-house mr-1.5"></i>Home
+                </button>
+                <button onclick="app.switchTab('conjugator')" id="nav-conjugator" class="px-4 py-2 rounded-xl text-sm font-game font-semibold text-indigo-100 hover:bg-white/10 transition cursor-pointer">
+                    <i class="fa-solid fa-book-open mr-1.5"></i>Coniuga Verbi
+                </button>
+                <button onclick="app.switchTab('quiz')" id="nav-quiz" class="px-4 py-2 rounded-xl text-sm font-game font-semibold text-indigo-100 hover:bg-white/10 transition cursor-pointer">
+                    <i class="fa-solid fa-gamepad mr-1.5"></i>Sfide & Quiz
+                </button>
+                <button onclick="app.switchTab('leaderboard')" id="nav-leaderboard" class="px-4 py-2 rounded-xl text-sm font-game font-semibold text-indigo-100 hover:bg-white/10 transition cursor-pointer">
+                    <i class="fa-solid fa-trophy mr-1.5"></i>Classifiche
+                </button>
+                <button onclick="app.switchTab('settings')" id="nav-settings" class="px-4 py-2 rounded-xl text-sm font-game font-semibold text-indigo-100 hover:bg-white/10 transition cursor-pointer">
+                    <i class="fa-solid fa-gear mr-1.5"></i>Profilo & Cloud
+                </button>
+            </nav>
+
+            <!-- USER MINI PROFILE / LOGIN STATUS -->
+            <div class="flex items-center space-x-3">
+                <div id="navUserBadge" class="flex items-center space-x-2 bg-indigo-700/60 px-3 py-1.5 rounded-2xl border border-indigo-400/30 cursor-pointer" onclick="app.switchTab('settings')">
+                    <div id="navUserAvatarMini" class="w-7 h-7 rounded-full overflow-hidden bg-amber-300 border border-white"></div>
+                    <span id="navUserName" class="text-xs font-game font-bold text-white max-w-[90px] truncate">Giocatore</span>
+                </div>
+                <!-- MOBILE MENU BUTTON -->
+                <button onclick="app.toggleMobileMenu()" class="md:hidden text-white p-2 focus:outline-none cursor-pointer">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- MOBILE MENU DROPDOWN -->
+        <div id="mobileMenu" class="hidden md:hidden bg-indigo-700 px-4 pt-2 pb-4 space-y-2 border-t border-indigo-500">
+            <button onclick="app.switchTab('home'); app.toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-game text-white hover:bg-white/10"><i class="fa-solid fa-house mr-2"></i>Home</button>
+            <button onclick="app.switchTab('conjugator'); app.toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-game text-white hover:bg-white/10"><i class="fa-solid fa-book-open mr-2"></i>Coniuga Verbi</button>
+            <button onclick="app.switchTab('quiz'); app.toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-game text-white hover:bg-white/10"><i class="fa-solid fa-gamepad mr-2"></i>Sfide & Quiz</button>
+            <button onclick="app.switchTab('leaderboard'); app.toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-game text-white hover:bg-white/10"><i class="fa-solid fa-trophy mr-2"></i>Classifiche</button>
+            <button onclick="app.switchTab('settings'); app.toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-game text-white hover:bg-white/10"><i class="fa-solid fa-gear mr-2"></i>Profilo & Cloud</button>
+        </div>
+    </header>
+
+    <!-- MAIN APP CONTAINER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- TAB 1: HOME -->
+        <section id="tab-home" class="space-y-6">
+            <div class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-3xl p-6 sm:p-10 text-white shadow-xl relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="relative z-10 max-w-2xl space-y-4">
+                    <span class="bg-white/20 text-white text-xs font-game font-bold px-3 py-1 rounded-full uppercase tracking-wider">Impara Giocando • 10 Anni</span>
+                    <h2 class="font-game text-3xl sm:text-5xl font-bold tracking-tight">Diventa un Mago dei Verbi! 🪄</h2>
+                    <p class="text-indigo-100 text-sm sm:text-base leading-relaxed">
+                        Esplora tutti i tempi e modi della lingua italiana, scegli il tuo eroe LEGO, scrivi le risposte al volo e scala la classifica!
+                    </p>
+                    <div class="flex flex-wrap gap-3 pt-2">
+                        <button onclick="app.switchTab('quiz')" class="px-6 py-3.5 bg-white text-indigo-700 hover:bg-indigo-50 font-game font-bold rounded-2xl shadow-lg btn-3d flex items-center space-x-2 cursor-pointer">
+                            <i class="fa-solid fa-play text-indigo-600"></i>
+                            <span>Inizia una Sfida!</span>
+                        </button>
+                        <button onclick="app.switchTab('conjugator')" class="px-6 py-3.5 bg-indigo-900/40 hover:bg-indigo-900/60 text-white font-game font-bold rounded-2xl border border-white/30 backdrop-blur-md btn-3d flex items-center space-x-2 cursor-pointer">
+                            <i class="fa-solid fa-book-open"></i>
+                            <span>Coniuga un Verbo</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QUICK STATS & ACTIVE VERBS CARD -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 flex items-center space-x-4">
+                    <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-2xl font-bold">
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 font-semibold uppercase">Miglior Punteggio</p>
+                        <h4 id="homeBestScore" class="font-game text-2xl font-bold text-slate-800">0 Punti</h4>
+                    </div>
+                </div>
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 flex items-center space-x-4">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl font-bold">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 font-semibold uppercase">Quiz Completati</p>
+                        <h4 id="homeTotalQuizzes" class="font-game text-2xl font-bold text-slate-800">0</h4>
+                    </div>
+                </div>
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 flex items-center space-x-4">
+                    <div class="w-14 h-14 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center text-2xl font-bold">
+                        <i class="fa-solid fa-list-check"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 font-semibold uppercase">Verbi Attivi nei Quiz</p>
+                        <h4 id="homeActiveVerbsCount" class="font-game text-2xl font-bold text-slate-800">0 verbi</h4>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: CONJUGATOR -->
+        <section id="tab-conjugator" class="hidden space-y-6">
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/80 space-y-6">
+                <div>
+                    <h3 class="font-game text-xl sm:text-2xl font-bold text-slate-800">Coniugatore Magico dei Verbi</h3>
+                    <p class="text-xs sm:text-sm text-slate-500">Digita qualsiasi verbo italiano all'infinito (es. <span class="text-indigo-600 font-bold">pisciare</span>, <span class="text-indigo-600 font-bold">mangiare</span>, <span class="text-indigo-600 font-bold">essere</span>) e guarda tutte le coniugazioni.</p>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <div class="relative flex-1">
+                        <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400"><i class="fa-solid fa-pen"></i></span>
+                        <input type="text" id="customVerbInput" placeholder="Es. pisciare, correre, essere..." class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border-2 border-slate-200 rounded-2xl font-game text-sm sm:text-base focus:outline-none focus:border-indigo-500 transition">
+                    </div>
+                    <button onclick="app.generateAndShowConjugation(true)" class="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-game font-bold text-sm rounded-2xl btn-3d flex items-center justify-center space-x-2 cursor-pointer shrink-0">
+                        <i class="fa-solid fa-wand-magic"></i>
+                        <span>Coniuga & Aggiungi</span>
+                    </button>
+                </div>
+
+                <!-- QUICK VERB CHIPS LIBRARY -->
+                <div class="pt-4 border-t border-slate-100 space-y-3">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="text-xs text-slate-600 font-game font-bold">
+                            <i class="fa-solid fa-layer-group text-indigo-500 mr-1"></i>Libreria Verbi (clicca per coniugare, la spunta per usarlo nei quiz, o <i class="fa-solid fa-trash-can text-rose-500"></i> per eliminare):
+                        </span>
+                        <div class="flex items-center space-x-2">
+                            <button type="button" onclick="app.toggleAllVerbsSelection(true)" class="text-[11px] font-bold text-indigo-600 hover:underline cursor-pointer">Seleziona Tutti</button>
+                            <span class="text-slate-300">|</span>
+                            <button type="button" onclick="app.toggleAllVerbsSelection(false)" class="text-[11px] font-bold text-slate-500 hover:underline cursor-pointer">Deseleziona</button>
+                            <span class="text-slate-300">|</span>
+                            <button type="button" onclick="app.resetDefaultVerbs()" class="text-[11px] font-bold text-amber-600 hover:underline cursor-pointer"><i class="fa-solid fa-rotate-left mr-0.5"></i>Ripristina</button>
+                        </div>
+                    </div>
+                    <div id="quickVerbSuggestions" class="flex flex-wrap gap-2 pt-1 items-center">
+                        <!-- Interactive Selectable + Deletable Verb Chips injected via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONJUGATION RESULT DISPLAY AREA -->
+            <div id="conjugationResultBox" class="hidden bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/80 space-y-6">
+                <!-- Dynamically populated conjugation tables -->
+            </div>
+        </section>
+
+        <!-- TAB 3: QUIZ ARENA -->
+        <section id="tab-quiz" class="hidden space-y-6">
+            <!-- QUIZ MODE SELECTOR -->
+            <div id="quizModeSelectionView" class="space-y-6">
+                <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/80 space-y-6">
+                    <div>
+                        <h3 class="font-game text-xl sm:text-2xl font-bold text-slate-800">Scegli la Modalità di Sfida</h3>
+                        <p class="text-xs sm:text-sm text-slate-500">Scegli tra il Quiz Misto, il quiz a scrittura rapida in base al tempo o le altre modalità speciali!</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- TIMED TYPING SPEED QUIZ MODE -->
+                        <div onclick="app.startQuiz('speedtyping')" class="bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-300 hover:border-emerald-500 rounded-3xl p-5 cursor-pointer transition transform hover:-translate-y-1 shadow-xs flex flex-col justify-between">
+                            <div class="space-y-2">
+                                <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-xl font-bold">
+                                    <i class="fa-solid fa-keyboard"></i>
+                                </div>
+                                <h4 class="font-game text-lg font-bold text-emerald-950">Scrivi e Vinci (Tempo Reale)</h4>
+                                <p class="text-xs text-slate-600 leading-relaxed">Scrivi tu la risposta corretta al volo: più veloce scrivi, più punti bonus guadagni!</p>
+                            </div>
+                            <div class="pt-4 flex items-center justify-between text-emerald-700 font-game text-xs font-bold">
+                                <span>Scrittura & Velocità</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </div>
+                        </div>
+
+                        <!-- MIXED QUIZ MODE -->
+                        <div onclick="app.startQuiz('mixed')" class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-300 hover:border-indigo-500 rounded-3xl p-5 cursor-pointer transition transform hover:-translate-y-1 shadow-xs flex flex-col justify-between">
+                            <div class="space-y-2">
+                                <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-xl font-bold">
+                                    <i class="fa-solid fa-shuffle"></i>
+                                </div>
+                                <h4 class="font-game text-lg font-bold text-indigo-950">Quiz Misto</h4>
+                                <p class="text-xs text-slate-600 leading-relaxed">Domande miste che alternano coniugazioni verbali e analisi grammaticale completa.</p>
+                            </div>
+                            <div class="pt-4 flex items-center justify-between text-indigo-700 font-game text-xs font-bold">
+                                <span>12 Domande Miste</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </div>
+                        </div>
+
+                        <!-- CLASSIC MODE -->
+                        <div onclick="app.startQuiz('classic')" class="bg-gradient-to-br from-blue-50 to-sky-50 border-2 border-blue-200 hover:border-blue-400 rounded-3xl p-5 cursor-pointer transition transform hover:-translate-y-1 shadow-xs flex flex-col justify-between">
+                            <div class="space-y-2">
+                                <div class="w-12 h-12 rounded-2xl bg-blue-500 text-white flex items-center justify-center text-xl font-bold">
+                                    <i class="fa-solid fa-book"></i>
+                                </div>
+                                <h4 class="font-game text-lg font-bold text-blue-950">Modo Classico</h4>
+                                <p class="text-xs text-slate-600 leading-relaxed">10 domande a scelta multipla con tempo generoso per imparare con calma.</p>
+                            </div>
+                            <div class="pt-4 flex items-center justify-between text-blue-700 font-game text-xs font-bold">
+                                <span>10 Domande</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </div>
+                        </div>
+
+                        <!-- TIME ATTACK 60S -->
+                        <div onclick="app.startQuiz('timeattack')" class="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 hover:border-amber-500 rounded-3xl p-5 cursor-pointer transition transform hover:-translate-y-1 shadow-xs flex flex-col justify-between">
+                            <div class="space-y-2">
+                                <div class="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-xl font-bold">
+                                    <i class="fa-solid fa-stopwatch"></i>
+                                </div>
+                                <h4 class="font-game text-lg font-bold text-amber-950">Sfida a Tempo (60s)</h4>
+                                <p class="text-xs text-slate-600 leading-relaxed">Rispondi a quante più domande possibili in 60 secondi netti!</p>
+                            </div>
+                            <div class="pt-4 flex items-center justify-between text-amber-700 font-game text-xs font-bold">
+                                <span>60 Secondi</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </div>
+                        </div>
+
+                        <!-- EXTREME MODE -->
+                        <div onclick="app.startQuiz('extreme')" class="bg-gradient-to-br from-red-50 to-rose-50 border-2 border-red-200 hover:border-red-500 rounded-3xl p-5 cursor-pointer transition transform hover:-translate-y-1 shadow-xs flex flex-col justify-between">
+                            <div class="space-y-2">
+                                <div class="w-12 h-12 rounded-2xl bg-red-600 text-white flex items-center justify-center text-xl font-bold">
+                                    <i class="fa-solid fa-fire"></i>
+                                </div>
+                                <h4 class="font-game text-lg font-bold text-red-950">Sfida Estrema (8s)</h4>
+                                <p class="text-xs text-slate-600 leading-relaxed">Solo 8 secondi per domanda su verbi irregolari e congiuntivo!</p>
+                            </div>
+                            <div class="pt-4 flex items-center justify-between text-red-700 font-game text-xs font-bold">
+                                <span>8s per Domanda</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </div>
+                        </div>
+
+                        <!-- BOSS FINALE -->
+                        <div onclick="app.startQuiz('boss')" class="bg-gradient-to-br from-slate-900 to-indigo-950 border-2 border-indigo-400 hover:border-amber-400 rounded-3xl p-5 cursor-pointer transition transform hover:-translate-y-1 shadow-md text-white flex flex-col justify-between">
+                            <div class="space-y-2">
+                                <div class="w-12 h-12 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center text-xl font-bold">
+                                    <i class="fa-solid fa-skull"></i>
+                                </div>
+                                <h4 class="font-game text-lg font-bold text-amber-300">Boss Finale</h4>
+                                <p class="text-xs text-slate-300 leading-relaxed">Inserimento libero della risposta, 3 cuori e verbi difficilissimi.</p>
+                            </div>
+                            <div class="pt-4 flex items-center justify-between text-amber-300 font-game text-xs font-bold">
+                                <span>Sopravvivi ai Cuori</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACTIVE QUIZ PLAYGROUND -->
+            <div id="quizPlayView" class="hidden bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-slate-200/80 space-y-6 max-w-3xl mx-auto">
+                <!-- QUIZ HEADER INFO -->
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div>
+                        <span id="quizModeBadge" class="bg-indigo-100 text-indigo-800 text-xs font-game font-bold px-3 py-1 rounded-full uppercase">Modo</span>
+                        <h4 id="quizProgressText" class="font-game text-lg font-bold text-slate-800 mt-1">Domanda 1 di 10</h4>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div id="quizTimerBox" class="flex items-center space-x-1.5 bg-amber-100 text-amber-800 px-3 py-1.5 rounded-2xl font-game font-bold text-sm">
+                            <i class="fa-solid fa-stopwatch"></i>
+                            <span id="quizTimerVal">10s</span>
+                        </div>
+                        <div class="flex items-center space-x-1.5 bg-emerald-100 text-emerald-800 px-3 py-1.5 rounded-2xl font-game font-bold text-sm">
+                            <i class="fa-solid fa-star"></i>
+                            <span id="quizScoreVal">0 pt</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LIVES / HEARTS CONTAINER (FOR BOSS) -->
+                <div id="bossHeartsBox" class="hidden flex items-center space-x-2 text-rose-500 text-lg font-game font-bold">
+                    <!-- 3 Hearts -->
+                </div>
+
+                <!-- QUESTION PROMPT -->
+                <div class="space-y-3 py-4 text-center">
+                    <h3 id="quizQuestionPrompt" class="font-game text-xl sm:text-2xl font-bold text-indigo-900 leading-snug">
+                        Coniuga alla persona...
+                    </h3>
+                    <p id="quizQuestionSubPrompt" class="text-sm text-slate-500">Seleziona la risposta esatta prima che scada il tempo!</p>
+                </div>
+
+                <!-- OPTIONS GRID (MULTIPLE CHOICE) -->
+                <div id="quizOptionsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <!-- Injected via JS -->
+                </div>
+
+                <!-- FREE TEXT INPUT (FOR BOSS & SPEED TYPING MODE) -->
+                <div id="quizFreeInputBox" class="hidden space-y-3">
+                    <div class="flex gap-2">
+                        <input type="text" id="quizFreeInputVal" placeholder="Scrivi la risposta esatta..." class="flex-1 px-4 py-3.5 bg-slate-50 border-2 border-slate-200 rounded-2xl font-game text-base focus:outline-none focus:border-indigo-500">
+                        <button onclick="app.submitFreeTextAnswer()" class="px-6 py-3.5 bg-indigo-600 text-white font-game font-bold rounded-2xl btn-3d cursor-pointer">Invia</button>
+                    </div>
+                </div>
+
+                <!-- NEXT BUTTON / FEEDBACK -->
+                <div id="quizFeedbackBox" class="hidden pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <span id="quizFeedbackText" class="font-game font-bold text-sm"></span>
+                    <button onclick="app.nextQuizQuestion()" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-game font-bold rounded-xl btn-3d cursor-pointer">
+                        Avanti <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- QUIZ RESULTS VIEW -->
+            <div id="quizResultView" class="hidden bg-white rounded-3xl p-8 sm:p-12 shadow-sm border border-slate-200/80 text-center space-y-6 max-w-xl mx-auto">
+                <div class="w-20 h-20 bg-amber-100 text-amber-500 rounded-3xl mx-auto flex items-center justify-center text-4xl animate-bounce">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="font-game text-3xl font-bold text-slate-800">Partita Terminata!</h3>
+                    <p class="text-slate-500 text-sm">Ecco il resoconto della tua performance in questa singola partita:</p>
+                </div>
+                <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200/80 grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-xs text-slate-400 font-semibold uppercase">Punteggio Totale</p>
+                        <h4 id="resFinalScore" class="font-game text-3xl font-bold text-indigo-600">0</h4>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 font-semibold uppercase">Risposte Esatte</p>
+                        <h4 id="resFinalCorrect" class="font-game text-3xl font-bold text-emerald-600">0/10</h4>
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+                    <button onclick="app.startQuiz(app.activeQuizMode)" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-game font-bold rounded-2xl btn-3d cursor-pointer">
+                        <i class="fa-solid fa-rotate-right mr-2"></i>Gioca Ancora
+                    </button>
+                    <button onclick="app.switchTab('leaderboard')" class="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-game font-bold rounded-2xl btn-3d cursor-pointer">
+                        <i class="fa-solid fa-trophy mr-2"></i>Vedi Classifica
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: LEADERBOARD -->
+        <section id="tab-leaderboard" class="hidden space-y-6">
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/80 space-y-6 max-w-3xl mx-auto">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="font-game text-xl sm:text-2xl font-bold text-slate-800">Classifica Singola Partita</h3>
+                        <p class="text-xs sm:text-sm text-slate-500">I migliori punteggi ottenuti nelle singole partite dai giocatori!</p>
+                    </div>
+                    <button onclick="app.renderLeaderboard()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-game font-bold text-xs rounded-xl cursor-pointer flex items-center justify-center space-x-1">
+                        <i class="fa-solid fa-rotate mr-1"></i>Aggiorna
+                    </button>
+                </div>
+
+                <div id="leaderboardListContainer" class="space-y-3">
+                    <!-- Dynamically populated leaderboard rows -->
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: PROFILE & GOOGLE DRIVE CLOUD SYNC -->
+        <section id="tab-settings" class="hidden space-y-6">
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/80 space-y-6 max-w-3xl mx-auto">
+                <div>
+                    <h3 class="font-game text-xl sm:text-2xl font-bold text-slate-800">Il Tuo Profilo & Sincronizzazione Cloud</h3>
+                    <p class="text-xs sm:text-sm text-slate-500">Personalizza il tuo nome, scegli l'avatar LEGO di un supereroe e mantieni i tuoi dati sincronizzati su Google Drive ogni 5 secondi.</p>
+                </div>
+
+                <!-- USERNAME & AVATAR CUSTOMIZER -->
+                <div class="space-y-4 pt-2">
+                    <div>
+                        <label class="block text-xs font-game font-bold text-slate-700 uppercase mb-2">Il Tuo Nome Giocatore</label>
+                        <input type="text" id="settingPlayerName" oninput="app.updatePlayerName(this.value)" class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-2xl font-game text-sm sm:text-base focus:outline-none focus:border-indigo-500" placeholder="Inserisci il tuo nome...">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-game font-bold text-slate-700 uppercase mb-2">Scegli il tuo Avatar LEGO (Supereroi & Personaggi)</label>
+                        <div id="avatarGrid" class="grid grid-cols-4 sm:grid-cols-6 gap-2.5 max-h-56 overflow-y-auto p-1">
+                            <!-- 12 LEGO Minifigure Head Vector Avatars injected here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GOOGLE SIGN-IN & GOOGLE DRIVE SYNC SETTINGS -->
+                <div class="pt-6 border-t border-slate-100 space-y-4">
+                    <h4 class="font-game text-base font-bold text-slate-800"><i class="fa-brands fa-google text-indigo-600 mr-2"></i>Google Login & Cloud Drive Sync</h4>
+                    <p class="text-xs text-slate-500">Inserisci il tuo <b class="text-slate-700">Google Client ID</b> per attivare il login e la sincronizzazione automatica ogni 5 secondi.</p>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 mb-1">Google Client ID</label>
+                        <input type="text" id="settingGoogleClientId" onchange="app.updateGoogleClientId(this.value)" placeholder="es. 123456789-abc...apps.googleusercontent.com" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono">
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3 pt-2">
+                        <div id="googleSignInButtonDiv"></div>
+                        <button type="button" onclick="app.signOutGoogle()" id="signOutGoogleBtn" class="hidden px-4 py-2.5 bg-rose-100 hover:bg-rose-200 text-rose-700 font-game font-bold text-xs rounded-xl cursor-pointer">
+                            Disconnetti Google
+                        </button>
+                    </div>
+
+                    <!-- LIVE SYNC STATUS BADGE -->
+                    <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-game font-bold text-indigo-900 flex items-center">
+                                <span id="syncDotIndicator" class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block mr-2 animate-pulse"></span>
+                                Stato Cloud Drive
+                            </span>
+                            <span id="syncStatusBadgeText" class="text-xs font-bold text-indigo-700">Attivo • Sincronizzazione ogni 5s</span>
+                        </div>
+                        <div class="flex items-center justify-between text-[11px] text-indigo-800 pt-1">
+                            <span id="lastSyncTimestampLabel"><i class="fa-solid fa-clock-rotate-left mr-1"></i>Ultimo sync: mai</span>
+                            <div class="flex items-center space-x-3">
+                                <button type="button" onclick="app.pullFromGoogleDriveNow()" class="font-bold underline text-emerald-700 hover:text-emerald-950 cursor-pointer">
+                                    Scarica da Drive
+                                </button>
+                                <button type="button" onclick="app.syncWithGoogleDriveNow(true)" class="font-bold underline text-indigo-700 hover:text-indigo-950 cursor-pointer">
+                                    Sincronizza Adesso
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LOCAL JSON BACKUP & RESTORE -->
+                <div class="pt-6 border-t border-slate-100 space-y-3">
+                    <h4 class="font-game text-base font-bold text-slate-800"><i class="fa-solid fa-file-arrow-down mr-2 text-slate-600"></i>Backup e Ripristino Locale</h4>
+                    <div class="flex flex-wrap gap-3">
+                        <button type="button" onclick="app.exportLocalBackup()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-game font-bold text-xs rounded-xl cursor-pointer flex items-center space-x-2">
+                            <i class="fa-solid fa-download"></i>
+                            <span>Esporta JSON Locale</span>
+                        </button>
+                        <label class="px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-game font-bold text-xs rounded-xl cursor-pointer flex items-center space-x-2">
+                            <i class="fa-solid fa-upload"></i>
+                            <span>Importa JSON Locale</span>
+                            <input type="file" id="importFileJson" accept=".json" onchange="app.importLocalBackup(event)" class="hidden">
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+    <!-- AUDIO SYNTHESIZER SOUND ENGINE -->
+    <script>
+        class SoundEngine {
+            constructor() {
+                this.audioCtx = null;
+            }
+            init() {
+                if (!this.audioCtx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) this.audioCtx = new AudioContext();
+                }
+                if (this.audioCtx && this.audioCtx.state === 'suspended') {
+                    this.audioCtx.resume();
+                }
+            }
+            playTone(freq, type, duration, delay = 0) {
+                try {
+                    this.init();
+                    if (!this.audioCtx) return;
+                    setTimeout(() => {
+                        const osc = this.audioCtx.createOscillator();
+                        const gain = this.audioCtx.createGain();
+                        osc.type = type;
+                        osc.frequency.setValueAtTime(freq, this.audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.12, this.audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + duration);
+                        osc.connect(gain);
+                        gain.connect(this.audioCtx.destination);
+                        osc.start();
+                        osc.stop(this.audioCtx.currentTime + duration);
+                    }, delay);
+                } catch (e) {}
+            }
+            playClick() { this.playTone(400, 'sine', 0.08); }
+            playSuccess() {
+                this.playTone(523.25, 'triangle', 0.1, 0);
+                this.playTone(659.25, 'triangle', 0.1, 100);
+                this.playTone(783.99, 'triangle', 0.2, 200);
+            }
+            playError() {
+                this.playTone(200, 'sawtooth', 0.15, 0);
+                this.playTone(150, 'sawtooth', 0.2, 100);
+            }
+            playFanfare() {
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((n, idx) => this.playTone(n, 'triangle', 0.25, idx * 120));
+            }
+        }
+    </script>
+
+    <!-- ROBUST ITALIAN VERB MORPHOLOGY ENGINE -->
+    <script>
+        const LEGO_HEAD_BASE = `
+            <defs>
+                <linearGradient id="legoYellow" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#FACC15"/>
+                    <stop offset="30%" stop-color="#FFE135"/>
+                    <stop offset="75%" stop-color="#F59E0B"/>
+                    <stop offset="100%" stop-color="#D97706"/>
+                </linearGradient>
+                <linearGradient id="legoStud" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#EAB308"/>
+                    <stop offset="40%" stop-color="#FEF08A"/>
+                    <stop offset="100%" stop-color="#CA8A04"/>
+                </linearGradient>
+            </defs>
+            <rect x="37" y="13" width="26" height="9" rx="2.5" fill="url(#legoStud)" stroke="#B45309" stroke-width="1.5"/>
+            <rect x="38" y="80" width="24" height="9" rx="2" fill="#D97706" stroke="#92400E" stroke-width="1.5"/>
+            <rect x="23" y="21" width="54" height="60" rx="14" fill="url(#legoYellow)" stroke="#B45309" stroke-width="2"/>
+            <rect x="29" y="26" width="6" height="48" rx="3" fill="#FFFFFF" opacity="0.35"/>
+        `;
+
+        class ItalianVerbEngine {
+            static getIrregularDictionary() {
+                return {
+                    "essere": {
+                        aux: "essere", group: "3ª Coniugazione",
+                        ind_pres: ["sono", "sei", "è", "siamo", "siete", "sono"],
+                        ind_imp: ["ero", "eri", "era", "eravamo", "eravate", "erano"],
+                        ind_rem: ["fui", "fosti", "fu", "fummo", "foste", "furono"],
+                        ind_fut: ["sarò", "sarai", "sarà", "saremo", "sarete", "saranno"],
+                        cong_pres: ["sia", "sia", "sia", "siamo", "siate", "siano"],
+                        cong_imp: ["fossi", "fossi", "fosse", "fossimo", "foste", "fossero"],
+                        cond: ["sarei", "saresti", "sarebbe", "saremmo", "sareste", "sarebbero"],
+                        imp: ["sii", "siamo", "siate"], part_pass: "stato"
+                    },
+                    "avere": {
+                        aux: "avere", group: "2ª Coniugazione",
+                        ind_pres: ["ho", "hai", "ha", "abbiamo", "avete", "hanno"],
+                        ind_imp: ["avevo", "avevi", "aveva", "avevamo", "avevate", "avevano"],
+                        ind_rem: ["ebbi", "avesti", "ebbe", "avemmo", "aveste", "ebbero"],
+                        ind_fut: ["avrò", "avrai", "avrà", "avremo", "avrete", "avranno"],
+                        cong_pres: ["abbia", "abbia", "abbia", "abbiamo", "abbiate", "abbiano"],
+                        cong_imp: ["avessi", "avessi", "avesse", "avessimo", "aveste", "avessero"],
+                        cond: ["avrei", "avresti", "avrebbe", "avremmo", "avreste", "avrebbero"],
+                        imp: ["abbi", "abbiamo", "abbiate"], part_pass: "avuto"
+                    },
+                    "fare": {
+                        aux: "avere", group: "1ª Coniugazione",
+                        ind_pres: ["faccio", "fai", "fa", "facciamo", "fate", "fanno"],
+                        ind_imp: ["facevo", "facevi", "faceva", "facevamo", "facevate", "facevano"],
+                        ind_rem: ["feci", "facesti", "fece", "facemmo", "faceste", "fecero"],
+                        ind_fut: ["farò", "farai", "farà", "faremo", "farete", "faranno"],
+                        cong_pres: ["faccia", "faccia", "faccia", "facciamo", "facciate", "facciano"],
+                        cong_imp: ["facessi", "facessi", "facesse", "facessimo", "faceste", "facessero"],
+                        cond: ["farei", "faresti", "farebbe", "faremmo", "fareste", "farebbero"],
+                        imp: ["fa'", "facciamo", "fate"], part_pass: "fatto"
+                    },
+                    "andare": {
+                        aux: "essere", group: "1ª Coniugazione",
+                        ind_pres: ["vado", "vai", "va", "andiamo", "andate", "vanno"],
+                        ind_imp: ["andavo", "andavi", "andava", "andavamo", "andavate", "andavano"],
+                        ind_rem: ["andai", "andasti", "andò", "andammo", "andaste", "andarono"],
+                        ind_fut: ["andrò", "andrai", "andrà", "andremo", "andrete", "andranno"],
+                        cong_pres: ["vada", "vada", "vada", "andiamo", "andiate", "vadano"],
+                        cong_imp: ["andassi", "andassi", "andasse", "andassimo", "andaste", "andassero"],
+                        cond: ["andrei", "andresti", "andrebbe", "andremmo", "andreste", "andrebbero"],
+                        imp: ["va'", "andiamo", "andate"], part_pass: "andato"
+                    }
+                };
+            }
+
+            static getAuxiliary(verb, clean) {
+                const essereVerbs = ["essere", "andare", "venire", "arrivare", "partire", "uscire", "entrare", "rimanere", "restare", "tornare", "salire", "scendere", "cadere", "nascere", "morire", "stare", "diventare", "piacere", "succedere", "riuscire"];
+                if (essereVerbs.includes(clean) || clean.includes("stare") || clean.includes("venire")) return "essere";
+                return "avere";
+            }
+
+            static getAuxiliaryConjugations(aux, partPass) {
+                if (aux === "essere") {
+                    return ["sono " + partPass, "sei " + partPass, "è " + partPass, "siamo " + partPass, "siete " + partPass, "sono " + partPass];
+                }
+                return ["ho " + partPass, "hai " + partPass, "ha " + partPass, "abbiamo " + partPass, "avete " + partPass, "hanno " + partPass];
+            }
+
+            static getImperfettoAuxConjugations(aux, partPass) {
+                if (aux === "essere") {
+                    return ["ero " + partPass, "eri " + partPass, "era " + partPass, "eravamo " + partPass, "eravate " + partPass, "erano " + partPass];
+                }
+                return ["avevo " + partPass, "avevi " + partPass, "aveva " + partPass, "avevamo " + partPass, "avevate " + partPass, "avevano " + partPass];
+            }
+
+            static getRemotoAuxConjugations(aux, partPass) {
+                if (aux === "essere") {
+                    return ["fui " + partPass, "fosti " + partPass, "fu " + partPass, "fummo " + partPass, "foste " + partPass, "furono " + partPass];
+                }
+                return ["ebbi " + partPass, "avesti " + partPass, "ebbe " + partPass, "avemmo " + partPass, "aveste " + partPass, "ebbero " + partPass];
+            }
+
+            static getFuturoAnterioreAuxConjugations(aux, partPass) {
+                if (aux === "essere") {
+                    return ["sarò " + partPass, "sarai " + partPass, "sarà " + partPass, "saremo " + partPass, "sarete " + partPass, "saranno " + partPass];
+                }
+                return ["avrò " + partPass, "avrai " + partPass, "avrà " + partPass, "avremo " + partPass, "avrete " + partPass, "avranno " + partPass];
+            }
+
+            static getCongiuntivoPassatoAux(aux, partPass) {
+                if (aux === "essere") {
+                    return ["sia " + partPass, "sia " + partPass, "sia " + partPass, "siamo " + partPass, "siate " + partPass, "siano " + partPass];
+                }
+                return ["abbia " + partPass, "abbia " + partPass, "abbia " + partPass, "abbiamo " + partPass, "abbiate " + partPass, "abbiano " + partPass];
+            }
+
+            static getCongiuntivoTrapassatoAux(aux, partPass) {
+                if (aux === "essere") {
+                    return ["fossi " + partPass, "fossi " + partPass, "fosse " + partPass, "fossimo " + partPass, "foste " + partPass, "fossero " + partPass];
+                }
+                return ["avessi " + partPass, "avessi " + partPass, "avesse " + partPass, "avessimo " + partPass, "aveste " + partPass, "avessero " + partPass];
+            }
+
+            static getCondizionalePassatoAux(aux, partPass) {
+                if (aux === "essere") {
+                    return ["sarei " + partPass, "saresti " + partPass, "sarebbe " + partPass, "saremmo " + partPass, "sareste " + partPass, "sarebbero " + partPass];
+                }
+                return ["avrei " + partPass, "avresti " + partPass, "avrebbe " + partPass, "avremmo " + partPass, "avreste " + partPass, "avrebbero " + partPass];
+            }
+
+            static conjugate(verb) {
+                const clean = verb.trim().toLowerCase();
+                const irregulars = this.getIrregularDictionary();
+                const pronouns = ["io", "tu", "egli", "noi", "voi", "essi"];
+                const congPronouns = ["che io", "che tu", "che egli", "che noi", "che voi", "che essi"];
+
+                if (irregulars[clean]) {
+                    const ir = irregulars[clean];
+                    return {
+                        verb: clean, conjugationGroup: ir.group, isIrregular: true, auxiliary: ir.aux,
+                        indicativo: {
+                            presente: pronouns.map((p, i) => ({ p, c: ir.ind_pres[i] })),
+                            imperfetto: pronouns.map((p, i) => ({ p, c: ir.ind_imp[i] })),
+                            passato_remoto: pronouns.map((p, i) => ({ p, c: ir.ind_rem[i] })),
+                            futuro_semplice: pronouns.map((p, i) => ({ p, c: ir.ind_fut[i] })),
+                            passato_prossimo: pronouns.map((p, i) => ({ p, c: this.getAuxiliaryConjugations(ir.aux, ir.part_pass)[i] })),
+                            trapassato_prossimo: pronouns.map((p, i) => ({ p, c: this.getImperfettoAuxConjugations(ir.aux, ir.part_pass)[i] })),
+                            trapassato_remoto: pronouns.map((p, i) => ({ p, c: this.getRemotoAuxConjugations(ir.aux, ir.part_pass)[i] })),
+                            futuro_anteriore: pronouns.map((p, i) => ({ p, c: this.getFuturoAnterioreAuxConjugations(ir.aux, ir.part_pass)[i] }))
+                        },
+                        congiuntivo: {
+                            presente: congPronouns.map((p, i) => ({ p, c: ir.cong_pres[i] })),
+                            imperfetto: congPronouns.map((p, i) => ({ p, c: ir.cong_imp[i] })),
+                            passato: congPronouns.map((p, i) => ({ p, c: this.getCongiuntivoPassatoAux(ir.aux, ir.part_pass)[i] })),
+                            trapassato: congPronouns.map((p, i) => ({ p, c: this.getCongiuntivoTrapassatoAux(ir.aux, ir.part_pass)[i] }))
+                        },
+                        condizionale: {
+                            presente: pronouns.map((p, i) => ({ p, c: ir.cond[i] })),
+                            passato: pronouns.map((p, i) => ({ p, c: this.getCondizionalePassatoAux(ir.aux, ir.part_pass)[i] }))
+                        },
+                        imperativo: {
+                            presente: ir.imp ? ir.imp.map((c, i) => ({ p: ["tu", "noi", "voi"][i], c })) : []
+                        },
+                        indefiniti: {
+                            infinito_presente: clean,
+                            infinito_passato: `${ir.aux === 'essere' ? 'esser' : 'aver'} ${ir.part_pass}`,
+                            participio_presente: clean.slice(0, -3) + (clean.endsWith('are') ? 'ante' : 'ente'),
+                            participio_passato: ir.part_pass,
+                            gerundio_presente: clean.slice(0, -3) + (clean.endsWith('are') ? 'ando' : 'endo'),
+                            gerundio_passato: `${ir.aux === 'essere' ? 'essendo' : 'avendo'} ${ir.part_pass}`
+                        }
+                    };
+                }
+
+                if (!clean.endsWith('are') && !clean.endsWith('ere') && !clean.endsWith('ire')) return null;
+
+                const ending = clean.slice(-3);
+                const stem = clean.slice(0, -3);
+                const group = ending === 'are' ? '1ª Coniugazione' : (ending === 'ere' ? '2ª Coniugazione' : '3ª Coniugazione');
+                const aux = this.getAuxiliary(verb, clean);
+
+                const isCiaGiare = clean.endsWith('ciare') || clean.endsWith('giare');
+                const isCareGare = clean.endsWith('care') || clean.endsWith('gare');
+                const isIsc = ending === 'ire' && !['aprire', 'offrire', 'soffrire', 'coprire', 'cucire', 'dormire', 'sentire', 'partire', 'seguire', 'bollire', 'fuggire', 'vestire', 'divertire', 'preferire'].includes(clean);
+
+                const stemPres = isCiaGiare ? stem.slice(0, -1) : stem;
+                const stemFut = isCareGare ? stem + 'h' : (isCiaGiare ? stem.slice(0, -1) : stem);
+
+                let p1, p2, p3, p4, p5, p6;
+                if (ending === 'are') {
+                    p1 = stemPres + 'o'; p2 = stemPres + 'i'; p3 = stemPres + 'a';
+                    p4 = stemPres + 'iamo'; p5 = stemPres + 'ate'; p6 = stemPres + 'ano';
+                } else if (ending === 'ere') {
+                    p1 = stem + 'o'; p2 = stem + 'i'; p3 = stem + 'e';
+                    p4 = stem + 'iamo'; p5 = stem + 'ete'; p6 = stem + 'ono';
+                } else {
+                    p1 = isIsc ? stem + 'isco' : stem + 'o';
+                    p2 = isIsc ? stem + 'isci' : stem + 'i';
+                    p3 = isIsc ? stem + 'isce' : stem + 'e';
+                    p4 = stem + 'iamo'; p5 = stem + 'ite';
+                    p6 = isIsc ? stem + 'iscono' : stem + 'ono';
+                }
+
+                const indPres = [p1, p2, p3, p4, p5, p6];
+                const impPrefix = ending === 'are' ? stem + 'av' : (ending === 'ere' ? stem + 'ev' : stem + 'iv');
+                const indImp = [impPrefix + 'o', impPrefix + 'i', impPrefix + 'a', impPrefix + 'avamo', impPrefix + 'avate', impPrefix + 'avano'];
+
+                const futRoot = stemFut + (ending === 'are' ? 'er' : (ending === 'ere' ? 'er' : 'ir'));
+                const indFut = [futRoot + 'ò', futRoot + 'ai', futRoot + 'à', futRoot + 'emo', futRoot + 'ete', futRoot + 'anno'];
+
+                let remEndings = ending === 'are' ? ['ai', 'asti', 'ò', 'ammo', 'aste', 'arono'] :
+                                 (ending === 'ere' ? ['ei', 'esti', 'é', 'emmo', 'este', 'erono'] : ['ii', 'isti', 'ì', 'immo', 'iste', 'irono']);
+                const indRem = [stem + remEndings[0], stem + remEndings[1], stem + remEndings[2], stem + remEndings[3], stem + remEndings[4], stem + remEndings[5]];
+
+                const partPass = stem + (ending === 'are' ? 'ato' : (ending === 'ere' ? 'uto' : 'ito'));
+                const passPross = this.getAuxiliaryConjugations(aux, partPass);
+                const trapPross = this.getImperfettoAuxConjugations(aux, partPass);
+                const trapRem = this.getRemotoAuxConjugations(aux, partPass);
+                const futAnt = this.getFuturoAnterioreAuxConjugations(aux, partPass);
+                const congPass = this.getCongiuntivoPassatoAux(aux, partPass);
+                const congTrap = this.getCongiuntivoTrapassatoAux(aux, partPass);
+                const condPass = this.getCondizionalePassatoAux(aux, partPass);
+
+                let congPres;
+                if (ending === 'are') {
+                    congPres = [stemPres + 'i', stemPres + 'i', stemPres + 'i', stemPres + 'iamo', stemPres + 'iate', stemPres + 'ino'];
+                } else if (ending === 'ere') {
+                    congPres = [stem + 'a', stem + 'a', stem + 'a', stem + 'iamo', stem + 'iate', stem + 'ano'];
+                } else {
+                    congPres = isIsc ? [stem + 'isca', stem + 'isca', stem + 'isca', stem + 'iamo', stem + 'iate', stem + 'iscano']
+                                     : [stem + 'a', stem + 'a', stem + 'a', stem + 'iamo', stem + 'iate', stem + 'ano'];
+                }
+
+                const congImpBase = stem + (ending === 'are' ? 'ass' : (ending === 'ere' ? 'ess' : 'iss'));
+                const congImp = [congImpBase + 'i', congImpBase + 'i', congImpBase + 'e', congImpBase + 'imo', ending === 'are' ? stem + 'aste' : (ending === 'ere' ? stem + 'este' : stem + 'iste'), congImpBase + 'ero'];
+
+                const condPres = [futRoot + 'ei', futRoot + 'esti', futRoot + 'ebbe', futRoot + 'emmo', futRoot + 'este', futRoot + 'ebbero'];
+                const impPres = [p2, p4, p5];
+
+                return {
+                    verb: clean, conjugationGroup: group, isIrregular: false, auxiliary: aux,
+                    indicativo: {
+                        presente: pronouns.map((p, i) => ({ p, c: indPres[i] })),
+                        imperfetto: pronouns.map((p, i) => ({ p, c: indImp[i] })),
+                        passato_remoto: pronouns.map((p, i) => ({ p, c: indRem[i] })),
+                        futuro_semplice: pronouns.map((p, i) => ({ p, c: indFut[i] })),
+                        passato_prossimo: pronouns.map((p, i) => ({ p, c: passPross[i] })),
+                        trapassato_prossimo: pronouns.map((p, i) => ({ p, c: trapPross[i] })),
+                        trapassato_remoto: pronouns.map((p, i) => ({ p, c: trapRem[i] })),
+                        futuro_anteriore: pronouns.map((p, i) => ({ p, c: futAnt[i] }))
+                    },
+                    congiuntivo: {
+                        presente: congPronouns.map((p, i) => ({ p, c: congPres[i] })),
+                        imperfetto: congPronouns.map((p, i) => ({ p, c: congImp[i] })),
+                        passato: congPronouns.map((p, i) => ({ p, c: congPass[i] })),
+                        trapassato: congPronouns.map((p, i) => ({ p, c: congTrap[i] }))
+                    },
+                    condizionale: {
+                        presente: pronouns.map((p, i) => ({ p, c: condPres[i] })),
+                        passato: pronouns.map((p, i) => ({ p, c: condPass[i] }))
+                    },
+                    imperativo: {
+                        presente: impPres.map((c, i) => ({ p: ["tu", "noi", "voi"][i], c }))
+                    },
+                    indefiniti: {
+                        infinito_presente: clean,
+                        infinito_passato: `${aux === 'essere' ? 'esser' : 'aver'} ${partPass}`,
+                        participio_presente: stem + (ending === 'are' ? 'ante' : 'ente'),
+                        participio_passato: partPass,
+                        gerundio_presente: stem + (ending === 'are' ? 'ando' : 'endo'),
+                        gerundio_passato: `${aux === 'essere' ? 'essendo' : 'avendo'} ${partPass}`
+                    }
+                };
+            }
+        }
+    </script>
+
+    <!-- MAIN APP CONTROLLER & LOGIC -->
+    <script>
+        const AVATARS = [
+            { id: 'av1', name: 'LEGO Batman', svg: `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="48" fill="#1E293B"/><defs><linearGradient id="batCow" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#334155"/><stop offset="100%" stop-color="#0F172A"/></linearGradient></defs><path d="M 23 45 Q 23 15 50 15 Q 77 15 77 45 L 75 22 L 67 29 L 50 12 L 33 29 L 25 22 Z" fill="url(#batCow)" stroke="#020617" stroke-width="1.5"/><rect x="23" y="36" width="54" height="28" rx="8" fill="#FDE047" opacity="0.35"/><circle cx="40" cy="48" r="3.8" fill="#F8FAFC"/><circle cx="60" cy="48" r="3.8" fill="#F8FAFC"/><circle cx="41.2" cy="46.8" r="1.3" fill="#0F172A"/><circle cx="61.2" cy="46.8" r="1.3" fill="#0F172A"/><path d="M 38 64 Q 50 71 62 64" stroke="#F8FAFC" stroke-width="2.8" fill="none" stroke-linecap="round"/></svg>` },
+            { id: 'av2', name: 'LEGO Robin', svg: `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="48" fill="#FEF08A"/><defs><linearGradient id="robinMask" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#166534"/><stop offset="100%" stop-color="#15803D"/></linearGradient></defs><path d="M 22 35 Q 50 18 78 35 L 77 25 Q 50 14 23 25 Z" fill="#DC2626" stroke="#991B1B" stroke-width="1.5"/><circle cx="79" cy="33" r="4" fill="#FACC15"/><path d="M 26 44 Q 50 38 74 44 L 73 52 Q 50 47 27 52 Z" fill="url(#robinMask)" stroke="#052e16" stroke-width="1"/><circle cx="40" cy="47" r="3.2" fill="#F8FAFC"/><circle cx="60" cy="47" r="3.2" fill="#F8FAFC"/><circle cx="40" cy="47" r="1.2" fill="#0F172A"/><circle cx="60" cy="47" r="1.2" fill="#0F172A"/><path d="M 38 63 Q 50 70 62 63" stroke="#111827" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg>` },
+            { id: 'av3', name: 'LEGO Superman', svg: `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="48" fill="#E0F2FE"/><path d="M 20 50 Q 18 20 50 20 Q 82 20 80 50 L 78 32 Q 50 24 22 32 Z" fill="#1E3A8A"/><circle cx="40" cy="48" r="3.8" fill="#111827"/><circle cx="60" cy="48" r="3.8" fill="#111827"/><circle cx="41.2" cy="46.8" r="1.3" fill="#FFF"/><circle cx="61.2" cy="46.8" r="1.3" fill="#FFF"/><path d="M 48 30 Q 50 37 53 30" fill="#1E3A8A"/><path d="M 39 62 Q 50 71 61 62" stroke="#DC2626" stroke-width="2.8" fill="none" stroke-linecap="round"/></svg>` },
+            { id: 'av4', name: 'LEGO Wonder Woman', svg: `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="48" fill="#FEF2F2"/><path d="M 20 55 Q 18 19 50 19 Q 82 19 80 55 L 82 78 L 74 78 L 74 36 Q 50 28 26 36 L 26 78 L 18 78 Z" fill="#111827"/><path d="M 25 31 L 75 31 L 68 23 L 32 23 Z" fill="#EAB308" stroke="#CA8A04" stroke-width="1.5"/><polygon points="50,23 53,28 47,28" fill="#DC2626"/><circle cx="40" cy="49" r="3.8" fill="#111827"/><circle cx="60" cy="49" r="3.8" fill="#111827"/><circle cx="41.2" cy="47.8" r="1.3" fill="#FFF"/><circle cx="61.2" cy="47.8" r="1.3" fill="#FFF"/><path d="M 41 62 Q 50 69 59 62" stroke="#DC2626" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg>` },
+            { id: 'av5', name: 'LEGO Spider-Man', svg: `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="48" fill="#DC2626"/><path d="M 32 43 Q 40 38 48 43 Q 40 58 32 43 Z" fill="#FFFFFF" stroke="#111827" stroke-width="2"/><path d="M 68 43 Q 60 38 52 43 Q 60 58 68 43 Z" fill="#FFFFFF" stroke="#111827" stroke-width="2"/><line x1="50" y1="16" x2="50" y2="84" stroke="#991B1B" stroke-width="1.2"/><line x1="16" y1="50" x2="84" y2="50" stroke="#991B1B" stroke-width="1.2"/><path d="M 39 65 Q 50 72 61 65" stroke="#111827" stroke-width="2.8" fill="none" stroke-linecap="round"/></svg>` },
+            { id: 'av6', name: 'LEGO Iron Man', svg: `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="48" fill="#B91C1C"/><rect x="25" y="24" width="50" height="52" rx="12" fill="#DC2626" stroke="#991B1B" stroke-width="2"/><polygon points="33,40 50,33 67,40 65,58 50,65 35,58" fill="#FACC15" stroke="#CA8A04" stroke-width="1.5"/><polygon points="40,43 50,40 60,43 57,51 50,54 43,51" fill="#38BDF8"/><circle cx="43" cy="47" r="1.5" fill="#0F172A"/><circle cx="57" cy="47" r="1.5" fill="#0F172A"/></svg>` },
+            { id: 'av7', name: 'LEGO Captain America', svg: `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="48" fill="#DBEAFE"/><path d="M 22 36 Q 22 18 50 18 Q 78 18 78 36 L 78 40 L 22 40 Z" fill="#1D4ED8"/><circle cx="50" cy="27" r="8" fill="#FFFFFF"/><polygon points="50,21 52,25 57,25 53,28 54,32 50,30 46,32 47,28 43,25 48,25" fill="#1D4ED8"/><circle cx="40" cy="48" r="3.8" fill="#111827"/><circle cx="60" cy="48" r="3.8" fill="#111827"/><circle cx="41.2" cy="46.8" r="1.3" fill="#FFF"/><circle cx="61.2" cy="46.8" r="1.3" fill="#FFF"/><path d="M 39 62 Q 50 70 61 62" stroke="#111827" stroke-width="2.8" fill="none" stroke-linecap="round"/></svg>` },
+            { id: 'av8', name: 'LEGO Mago', svg: `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="48" fill="#EDE9FE"/>${LEGO_HEAD_BASE}<polygon points="24,27 50,4 76,27" fill="#4F46E5" stroke="#312E81" stroke-width="1.5"/><ellipse cx="50" cy="27" rx="35" ry="5" fill="#4338CA" stroke="#312E81" stroke-width="1.5"/><polygon points="50,11 52,16 57,16 53,19 54,24 50,21 46,24 47,19 43,16 48,16" fill="#FDE047"/><circle cx="40" cy="46" r="3.8" fill="#111827"/><circle cx="60" cy="46" r="3.8" fill="#111827"/><circle cx="41.2" cy="44.8" r="1.3" fill="#FFF"/><circle cx="61.2" cy="44.8" r="1.3" fill="#FFF"/><path d="M 33 58 Q 50 53 67 58 L 58 86 L 50 91 L 42 86 Z" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/><path d="M 43 60 Q 50 65 57 60" stroke="#111827" stroke-width="2" fill="none" stroke-linecap="round"/></svg>` },
+            { id: 'av9', name: 'LEGO Ninja', svg: `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="48" fill="#F1F5F9"/>${LEGO_HEAD_BASE}<path d="M 22 36 Q 22 19 50 19 Q 78 19 78 36 L 78 39 L 22 39 Z" fill="#1E293B"/><path d="M 22 55 L 78 55 L 78 68 Q 78 82 50 82 Q 22 82 22 68 Z" fill="#1E293B"/><line x1="22" y1="33" x2="78" y2="33" stroke="#EF4444" stroke-width="3"/><circle cx="40" cy="47" r="3.8" fill="#111827"/><circle cx="60" cy="47" r="3.8" fill="#111827"/><circle cx="41.2" cy="45.8" r="1.3" fill="#FFF"/><circle cx="61.2" cy="45.8" r="1.3" fill="#FFF"/><line x1="34" y1="41" x2="45" y2="44" stroke="#111827" stroke-width="2.5" stroke-linecap="round"/><line x1="66" y1="41" x2="55" y2="44" stroke="#111827" stroke-width="2.5" stroke-linecap="round"/></svg>` },
+            { id: 'av10', name: 'LEGO Robot', svg: `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="48" fill="#E0E7FF"/><rect x="37" y="13" width="26" height="9" rx="2.5" fill="#94A3B8" stroke="#475569" stroke-width="1.5"/><rect x="38" y="80" width="24" height="9" rx="2" fill="#64748B" stroke="#334155" stroke-width="1.5"/><rect x="23" y="21" width="54" height="60" rx="14" fill="#CBD5E1" stroke="#475569" stroke-width="2"/><rect x="29" y="26" width="6" height="48" rx="3" fill="#FFFFFF" opacity="0.5"/><rect x="29" y="40" width="42" height="14" rx="5" fill="#0F172A"/><circle cx="40" cy="47" r="3.5" fill="#38BDF8"/><circle cx="60" cy="47" r="3.5" fill="#38BDF8"/><rect x="36" y="61" width="28" height="7" rx="3" fill="#334155"/><line x1="43" y1="61" x2="43" y2="68" stroke="#94A3B8" stroke-width="1.5"/><line x1="50" y1="61" x2="50" y2="68" stroke="#94A3B8" stroke-width="1.5"/><line x1="57" y1="61" x2="57" y2="68" stroke="#94A3B8" stroke-width="1.5"/></svg>` },
+            { id: 'av11', name: 'LEGO Cavaliere', svg: `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="48" fill="#E2E8F0"/>${LEGO_HEAD_BASE}<path d="M 46 15 Q 52 5 64 12 Q 56 17 52 17 Z" fill="#EF4444"/><path d="M 21 34 Q 21 17 50 17 Q 79 17 79 34 L 79 65 L 71 65 L 71 38 L 29 38 L 29 65 L 21 65 Z" fill="#64748B" stroke="#334155" stroke-width="1.5"/><circle cx="40" cy="49" r="3.8" fill="#111827"/><circle cx="60" cy="49" r="3.8" fill="#111827"/><circle cx="41.2" cy="47.8" r="1.3" fill="#FFF"/><circle cx="61.2" cy="47.8" r="1.3" fill="#FFF"/><path d="M 41 62 Q 50 69 59 62" stroke="#111827" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg>` },
+            { id: 'av12', name: 'LEGO Chef', svg: `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="48" fill="#FFEDD5"/>${LEGO_HEAD_BASE}<path d="M 26 28 L 24 16 Q 24 8 36 10 Q 50 5 64 10 Q 76 8 76 16 L 74 28 Z" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.8"/><circle cx="40" cy="47" r="3.8" fill="#111827"/><circle cx="60" cy="47" r="3.8" fill="#111827"/><circle cx="41.2" cy="45.8" r="1.3" fill="#FFF"/><circle cx="61.2" cy="45.8" r="1.3" fill="#FFF"/><path d="M 36 59 Q 43 55 50 59 Q 57 55 64 59" stroke="#78350F" stroke-width="3.2" fill="none" stroke-linecap="round"/><path d="M 43 65 Q 50 71 57 65" stroke="#111827" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>` }
+        ];
+
+        class VerbiMagiciApp {
+            constructor() {
+                this.sound = new SoundEngine();
+                this.currentUser = { name: 'Mago Leo', avatarId: 'av1' };
+                this.cloudConfig = { googleClientId: '', googleToken: null, googleFileId: null };
+                this.verbLibrary = [
+                    { word: 'amare', active: true }, { word: 'temere', active: true }, { word: 'partire', active: true },
+                    { word: 'essere', active: true }, { word: 'avere', active: true }, { word: 'andare', active: true },
+                    { word: 'fare', active: true }, { word: 'dire', active: true }, { word: 'pisciare', active: true },
+                    { word: 'mangiare', active: true }, { word: 'potere', active: true }, { word: 'volere', active: true }
+                ];
+                this.singleRunScores = [];
+                this.activeQuizMode = 'classic';
+                this.quizQuestions = [];
+                this.currentQuestionIdx = 0;
+                this.quizScore = 0;
+                this.quizCorrectCount = 0;
+                this.quizTimer = null;
+                this.quizTimeLeft = 10;
+                this.bossHearts = 3;
+
+                this.initApp();
+            }
+
+            initApp() {
+                this.loadPersistentState();
+                this.renderAvatarsGrid();
+                this.renderQuickVerbs();
+                this.updateNavBar();
+                this.updateHomeStats();
+                this.initGoogleAuth();
+
+                setInterval(() => {
+                    if (this.cloudConfig.googleToken) {
+                        this.syncWithGoogleDriveNow(false);
+                    }
+                }, 5000);
+            }
+
+            loadPersistentState() {
+                const savedUser = localStorage.getItem('verbi_magici_user_v2');
+                if (savedUser) { try { this.currentUser = JSON.parse(savedUser); } catch(e){} }
+                const savedCloud = localStorage.getItem('verbi_magici_cloud_v2');
+                if (savedCloud) { try { this.cloudConfig = JSON.parse(savedCloud); } catch(e){} }
+                const savedVerbs = localStorage.getItem('verbi_magici_verbs_v2');
+                if (savedVerbs) { try { this.verbLibrary = JSON.parse(savedVerbs); } catch(e){} }
+                const savedScores = localStorage.getItem('verbi_magici_single_run_scores_v2');
+                if (savedScores) { try { this.singleRunScores = JSON.parse(savedScores); } catch(e){} }
+
+                const nameInput = document.getElementById('settingPlayerName');
+                const gIdInput = document.getElementById('settingGoogleClientId');
+                if (nameInput) nameInput.value = this.currentUser.name || '';
+                if (gIdInput) gIdInput.value = this.cloudConfig.googleClientId || '';
+            }
+
+            savePersistentState() {
+                localStorage.setItem('verbi_magici_user_v2', JSON.stringify(this.currentUser));
+                localStorage.setItem('verbi_magici_cloud_v2', JSON.stringify(this.cloudConfig));
+                localStorage.setItem('verbi_magici_verbs_v2', JSON.stringify(this.verbLibrary));
+                localStorage.setItem('verbi_magici_single_run_scores_v2', JSON.stringify(this.singleRunScores));
+            }
+
+            switchTab(tabId) {
+                this.sound.playClick();
+                ['home', 'conjugator', 'quiz', 'leaderboard', 'settings'].forEach(t => {
+                    const el = document.getElementById(`tab-${t}`);
+                    const nav = document.getElementById(`nav-${t}`);
+                    if (el) el.classList.add('hidden');
+                    if (nav) nav.classList.remove('bg-white/20', 'text-white');
+                });
+
+                const targetEl = document.getElementById(`tab-${tabId}`);
+                const targetNav = document.getElementById(`nav-${tabId}`);
+                if (targetEl) targetEl.classList.remove('hidden');
+                if (targetNav) targetNav.classList.add('bg-white/20', 'text-white');
+
+                if (tabId === 'leaderboard') this.renderLeaderboard();
+                if (tabId === 'quiz') {
+                    document.getElementById('quizModeSelectionView').classList.remove('hidden');
+                    document.getElementById('quizPlayView').classList.add('hidden');
+                    document.getElementById('quizResultView').classList.add('hidden');
+                }
+            }
+
+            toggleMobileMenu() {
+                const menu = document.getElementById('mobileMenu');
+                if (menu) menu.classList.toggle('hidden');
+            }
+
+            showToast(title, message, type = 'success') {
+                const container = document.getElementById('toastContainer');
+                if (!container) return;
+                const toast = document.createElement('div');
+                toast.className = `pointer-events-auto p-4 rounded-2xl shadow-xl text-white font-game text-sm flex items-center space-x-3 transition transform translate-y-2 opacity-0 ${type === 'error' ? 'bg-rose-600' : 'bg-emerald-600'}`;
+                toast.innerHTML = `
+                    <i class="fa-solid ${type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'} text-lg"></i>
+                    <div>
+                        <h5 class="font-bold">${title}</h5>
+                        <p class="text-xs text-white/90">${message}</p>
+                    </div>
+                `;
+                container.appendChild(toast);
+                setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 50);
+                setTimeout(() => {
+                    toast.classList.add('translate-y-2', 'opacity-0');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3500);
+            }
+
+            updateNavBar() {
+                const nameEl = document.getElementById('navUserName');
+                const avatarMini = document.getElementById('navUserAvatarMini');
+                if (nameEl) nameEl.textContent = this.currentUser.name;
+                if (avatarMini) {
+                    const av = AVATARS.find(a => a.id === this.currentUser.avatarId) || AVATARS[0];
+                    avatarMini.innerHTML = av.svg;
+                }
+            }
+
+            updateHomeStats() {
+                const bestScoreEl = document.getElementById('homeBestScore');
+                const totalQuizzesEl = document.getElementById('homeTotalQuizzes');
+                const activeVerbsEl = document.getElementById('homeActiveVerbsCount');
+
+                const best = this.singleRunScores.length > 0 ? Math.max(...this.singleRunScores.map(s => s.score)) : 0;
+                if (bestScoreEl) bestScoreEl.textContent = `${best} Punti`;
+                if (totalQuizzesEl) totalQuizzesEl.textContent = this.singleRunScores.length;
+                if (activeVerbsEl) {
+                    const activeCount = this.verbLibrary.filter(v => v.active).length;
+                    activeVerbsEl.textContent = `${activeCount} verbi`;
+                }
+            }
+
+            renderAvatarsGrid() {
+                const grid = document.getElementById('avatarGrid');
+                if (!grid) return;
+                grid.innerHTML = AVATARS.map(av => `
+                    <div onclick="app.selectAvatar('${av.id}')" class="cursor-pointer p-2 rounded-2xl border-2 transition ${this.currentUser.avatarId === av.id ? 'border-indigo-600 bg-indigo-50 shadow-sm scale-105' : 'border-slate-200 hover:border-indigo-300 bg-white'} flex flex-col items-center">
+                        <div class="w-12 h-12">${av.svg}</div>
+                        <span class="text-[10px] font-game font-bold text-slate-700 mt-1 truncate w-full text-center">${av.name.replace('LEGO ', '')}</span>
+                    </div>
+                `).join('');
+            }
+
+            selectAvatar(avatarId) {
+                this.currentUser.avatarId = avatarId;
+                this.savePersistentState();
+                this.renderAvatarsGrid();
+                this.updateNavBar();
+                this.sound.playClick();
+                this.showToast('Avatar Aggiornato!', 'Il tuo eroe LEGO è pronto.');
+            }
+
+            updatePlayerName(name) {
+                this.currentUser.name = name.trim() || 'Giocatore';
+                this.savePersistentState();
+                this.updateNavBar();
+            }
+
+            renderQuickVerbs() {
+                const container = document.getElementById('quickVerbSuggestions');
+                if (!container) return;
+                container.innerHTML = this.verbLibrary.map((item, index) => `
+                    <div class="inline-flex items-center bg-white border-2 ${item.active ? 'border-indigo-300 bg-indigo-50/50' : 'border-slate-200 bg-slate-50'} rounded-2xl shadow-2xs overflow-hidden transition">
+                        <button type="button" onclick="app.toggleVerbSelection(${index})" title="Attiva/Disattiva per i quiz" class="px-2 py-1.5 ${item.active ? 'text-emerald-600 bg-emerald-100/60' : 'text-slate-300 bg-slate-100'} hover:opacity-85 transition cursor-pointer">
+                            <i class="fa-solid fa-check text-[11px]"></i>
+                        </button>
+                        <button type="button" onclick="app.loadVerbIntoConjugator('${item.word}')" class="px-3 py-1.5 font-game font-bold text-xs text-slate-700 hover:text-indigo-600 cursor-pointer">
+                            ${item.word}
+                        </button>
+                        <button type="button" onclick="app.deleteVerbFromLibrary(${index})" title="Elimina verbo" class="px-2 py-1.5 text-rose-500 hover:bg-rose-500 hover:text-white transition cursor-pointer border-l border-slate-200">
+                            <i class="fa-solid fa-trash-can text-[11px]"></i>
+                        </button>
+                    </div>
+                `).join('');
+                this.updateHomeStats();
+            }
+
+            toggleVerbSelection(index) {
+                if (this.verbLibrary[index]) {
+                    this.verbLibrary[index].active = !this.verbLibrary[index].active;
+                    this.savePersistentState();
+                    this.renderQuickVerbs();
+                    this.sound.playClick();
+                }
+            }
+
+            toggleAllVerbsSelection(status) {
+                this.verbLibrary.forEach(v => v.active = status);
+                this.savePersistentState();
+                this.renderQuickVerbs();
+                this.sound.playClick();
+            }
+
+            resetDefaultVerbs() {
+                this.verbLibrary = [
+                    { word: 'amare', active: true }, { word: 'temere', active: true }, { word: 'partire', active: true },
+                    { word: 'essere', active: true }, { word: 'avere', active: true }, { word: 'andare', active: true },
+                    { word: 'fare', active: true }, { word: 'dire', active: true }, { word: 'pisciare', active: true },
+                    { word: 'mangiare', active: true }, { word: 'potere', active: true }, { word: 'volere', active: true }
+                ];
+                this.savePersistentState();
+                this.renderQuickVerbs();
+                this.sound.playSuccess();
+                this.showToast('Libreria Ripristinata', 'Verbi predefiniti caricati.');
+            }
+
+            deleteVerbFromLibrary(index) {
+                if (this.verbLibrary.length <= 1) {
+                    this.showToast('Attenzione', 'Devi lasciare almeno un verbo nella libreria.', 'error');
+                    return;
+                }
+                const deleted = this.verbLibrary.splice(index, 1);
+                this.savePersistentState();
+                this.renderQuickVerbs();
+                this.sound.playClick();
+                this.showToast('Verbo Eliminato', `"${deleted[0].word}" rimosso dalla libreria.`);
+            }
+
+            loadVerbIntoConjugator(word) {
+                const input = document.getElementById('customVerbInput');
+                if (input) input.value = word;
+                this.switchTab('conjugator');
+                this.generateAndShowConjugation(false);
+            }
+
+            generateAndShowConjugation(addToLibrary = false) {
+                const inputEl = document.getElementById('customVerbInput');
+                if (!inputEl) return;
+                const rawInput = inputEl.value.trim();
+                if (!rawInput) {
+                    this.showToast('Inserisci un verbo', 'Scrivi un verbo all\'infinito (es. pisciare, andare).', 'error');
+                    return;
+                }
+
+                const data = ItalianVerbEngine.conjugate(rawInput);
+                if (!data) {
+                    this.showToast('Verbo non riconosciuto', 'Controlla l\'ortografia del verbo inserito (es. finire, temere).', 'error');
+                    return;
+                }
+
+                if (addToLibrary) {
+                    const exists = this.verbLibrary.some(v => v.word === data.verb);
+                    if (!exists) {
+                        this.verbLibrary.unshift({ word: data.verb, active: true });
+                        this.savePersistentState();
+                        this.renderQuickVerbs();
+                    }
+                }
+
+                this.sound.playSuccess();
+                const resBox = document.getElementById('conjugationResultBox');
+                resBox.classList.remove('hidden');
+
+                const renderCard = (title, entries, accent = 'indigo') => {
+                    const rows = entries.map(e => `
+                        <div class="py-1 px-2.5 rounded-lg odd:bg-slate-50 text-xs sm:text-sm">
+                            <span class="font-bold text-slate-800">${e.p} ${e.c}</span>
+                        </div>
+                    `).join('');
+                    return `
+                        <div class="bg-white rounded-2xl border-2 border-${accent}-100 p-3.5 shadow-xs">
+                            <h5 class="font-game font-bold text-${accent}-700 text-sm mb-2 pb-1 border-b border-${accent}-100">${title}</h5>
+                            <div class="space-y-0.5">${rows}</div>
+                        </div>
+                    `;
+                };
+
+                resBox.innerHTML = `
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b-2 border-slate-100">
+                        <div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <h3 class="font-game text-2xl sm:text-3xl font-bold text-indigo-700 uppercase">${data.verb}</h3>
+                                <span class="bg-indigo-100 text-indigo-800 text-xs font-extrabold px-3 py-1 rounded-full">${data.conjugationGroup}</span>
+                                <span class="${data.isIrregular ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'} text-xs font-extrabold px-3 py-1 rounded-full">
+                                    ${data.isIrregular ? 'Irregolare' : 'Regolare'}
+                                </span>
+                                <span class="bg-slate-100 text-slate-700 text-xs font-bold px-3 py-1 rounded-full">Ausiliare: ${data.auxiliary}</span>
+                            </div>
+                        </div>
+                        <button onclick="app.startQuiz('specific', '${data.verb}')" class="px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-game font-bold text-xs rounded-2xl btn-3d flex items-center justify-center space-x-2 cursor-pointer shrink-0">
+                            <i class="fa-solid fa-gamepad"></i>
+                            <span>Fai Quiz su "${data.verb}"</span>
+                        </button>
+                    </div>
+
+                    <div class="space-y-2.5">
+                        <h4 class="font-game text-base sm:text-lg font-bold text-indigo-900 flex items-center"><span class="w-3 h-3 rounded-full bg-indigo-500 mr-2"></span>Modo Indicativo</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                            ${renderCard('Presente', data.indicativo.presente, 'indigo')}
+                            ${renderCard('Imperfetto', data.indicativo.imperfetto, 'indigo')}
+                            ${renderCard('Passato Remoto', data.indicativo.passato_remoto, 'indigo')}
+                            ${renderCard('Futuro Semplice', data.indicativo.futuro_semplice, 'indigo')}
+                            ${renderCard('Passato Prossimo', data.indicativo.passato_prossimo, 'sky')}
+                            ${renderCard('Trapassato Prossimo', data.indicativo.trapassato_prossimo, 'sky')}
+                            ${renderCard('Trapassato Remoto', data.indicativo.trapassato_remoto, 'sky')}
+                            ${renderCard('Futuro Anteriore', data.indicativo.futuro_anteriore, 'sky')}
+                        </div>
+                    </div>
+
+                    <div class="space-y-2.5">
+                        <h4 class="font-game text-base sm:text-lg font-bold text-purple-900 flex items-center"><span class="w-3 h-3 rounded-full bg-purple-500 mr-2"></span>Modo Congiuntivo</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                            ${renderCard('Presente', data.congiuntivo.presente, 'purple')}
+                            ${renderCard('Imperfetto', data.congiuntivo.imperfetto, 'purple')}
+                            ${renderCard('Passato', data.congiuntivo.passato, 'purple')}
+                            ${renderCard('Trapassato', data.congiuntivo.trapassato, 'purple')}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                        ${renderCard('Condizionale Presente', data.condizionale.presente, 'emerald')}
+                        ${renderCard('Condizionale Passato', data.condizionale.passato, 'emerald')}
+                        ${renderCard('Imperativo Presente', data.imperativo.presente, 'amber')}
+                        <div class="bg-slate-50 rounded-2xl border-2 border-slate-200 p-3.5 shadow-xs space-y-1.5">
+                            <h5 class="font-game font-bold text-slate-700 text-sm mb-2 pb-1 border-b border-slate-200">Modi Indefiniti</h5>
+                            <div class="text-[11px] flex justify-between"><span class="text-slate-400">Inf. Pres.:</span><b class="text-slate-800">${data.indefiniti.infinito_presente}</b></div>
+                            <div class="text-[11px] flex justify-between"><span class="text-slate-400">Inf. Pass.:</span><b class="text-slate-800">${data.indefiniti.infinito_passato}</b></div>
+                            <div class="text-[11px] flex justify-between"><span class="text-slate-400">Part. Pres.:</span><b class="text-slate-800">${data.indefiniti.participio_presente}</b></div>
+                            <div class="text-[11px] flex justify-between"><span class="text-slate-400">Part. Pass.:</span><b class="text-slate-800">${data.indefiniti.participio_passato}</b></div>
+                            <div class="text-[11px] flex justify-between"><span class="text-slate-400">Ger. Pres.:</span><b class="text-slate-800">${data.indefiniti.gerundio_presente}</b></div>
+                            <div class="text-[11px] flex justify-between"><span class="text-slate-400">Ger. Pass.:</span><b class="text-slate-800">${data.indefiniti.gerundio_passato}</b></div>
+                        </div>
+                    </div>
+                `;
+                resBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            startQuiz(mode, specificVerb = null) {
+                this.sound.playClick();
+                this.activeQuizMode = mode;
+                const activeVerbs = this.verbLibrary.filter(v => v.active).map(v => v.word);
+                const pool = specificVerb ? [specificVerb] : (activeVerbs.length > 0 ? activeVerbs : ['amare', 'temere', 'partire']);
+
+                this.quizQuestions = [];
+                const numQuestions = (mode === 'timeattack' || mode === 'boss' || mode === 'speedtyping') ? 15 : 10;
+
+                for (let i = 0; i < numQuestions; i++) {
+                    const verbWord = pool[Math.floor(Math.random() * pool.length)];
+                    const conjData = ItalianVerbEngine.conjugate(verbWord);
+
+                    if (mode === 'analysis') {
+                        const tensesList = [
+                            { name: 'Indicativo Presente', list: conjData.indicativo.presente },
+                            { name: 'Indicativo Imperfetto', list: conjData.indicativo.imperfetto },
+                            { name: 'Indicativo Passato Remoto', list: conjData.indicativo.passato_remoto },
+                            { name: 'Indicativo Futuro Semplice', list: conjData.indicativo.futuro_semplice },
+                            { name: 'Congiuntivo Presente', list: conjData.congiuntivo.presente },
+                            { name: 'Condizionale Presente', list: conjData.condizionale.presente }
+                        ];
+                        const chosenTense = tensesList[Math.floor(Math.random() * tensesList.length)];
+                        const pIdx = Math.floor(Math.random() * chosenTense.list.length);
+                        const entry = chosenTense.list[pIdx];
+
+                        const correctAnswer = `${conjData.conjugationGroup} • Modo ${chosenTense.name.split(' ')[0]} • ${chosenTense.name} • ${entry.p}`;
+                        const wrongAnswers = [
+                            `${conjData.conjugationGroup} • Modo Indicativo • Passato Prossimo • ${entry.p}`,
+                            `3ª Coniugazione • Modo Congiuntivo • Imperfetto • ${entry.p}`,
+                            `1ª Coniugazione • Modo Condizionale • Presente • ${entry.p}`
+                        ];
+
+                        const options = this.shuffleArray([correctAnswer, ...wrongAnswers.slice(0, 3)]);
+                        this.quizQuestions.push({
+                            type: 'multiple',
+                            prompt: `Analisi grammaticale di: <span class="text-indigo-600 underline">"${entry.c}"</span> (verbo ${conjData.verb})`,
+                            subPrompt: 'Qual è la sua corretta analisi?',
+                            correctAnswer,
+                            options
+                        });
+                    } else {
+                        const tenses = [
+                            { name: 'Indicativo Presente', list: conjData.indicativo.presente },
+                            { name: 'Indicativo Imperfetto', list: conjData.indicativo.imperfetto },
+                            { name: 'Indicativo Futuro Semplice', list: conjData.indicativo.futuro_semplice },
+                            { name: 'Condizionale Presente', list: conjData.condizionale.presente }
+                        ];
+                        const t = tenses[Math.floor(Math.random() * tenses.length)];
+                        const pIdx = Math.floor(Math.random() * t.list.length);
+                        const entry = t.list[pIdx];
+
+                        const correctAnswer = entry.c;
+                        const wrong1 = ItalianVerbEngine.conjugate(pool[Math.floor(Math.random() * pool.length)]).indicativo.presente[pIdx].c;
+                        const wrong2 = t.list[(pIdx + 1) % t.list.length].c;
+                        const wrong3 = t.list[(pIdx + 2) % t.list.length].c;
+
+                        const options = this.shuffleArray([correctAnswer, wrong1, wrong2, wrong3]);
+                        const isFreeType = mode === 'boss' || mode === 'speedtyping';
+
+                        this.quizQuestions.push({
+                            type: (isFreeType ? 'freetext' : 'multiple'),
+                            prompt: `Coniuga alla persona <span class="text-indigo-600 font-bold">${entry.p}</span> il verbo <span class="text-indigo-600 font-bold uppercase">${conjData.verb}</span> al <span class="text-purple-600 font-bold">${t.name}</span>`,
+                            subPrompt: isFreeType ? 'Scrivi la risposta corretta nello sottostante al volo!' : 'Seleziona la risposta esatta',
+                            correctAnswer,
+                            options
+                        });
+                    }
+                }
+
+                this.currentQuestionIdx = 0;
+                this.quizScore = 0;
+                this.quizCorrectCount = 0;
+                this.bossHearts = 3;
+
+                document.getElementById('quizModeSelectionView').classList.add('hidden');
+                document.getElementById('quizPlayView').classList.remove('hidden');
+                document.getElementById('quizResultView').classList.add('hidden');
+
+                const modeNames = { classic: 'Modo Classico', timeattack: 'Sfida a Tempo 60s', speedtyping: 'Scrivi e Vinci (Tempo Reale)', analysis: 'Analisi Grammaticale', extreme: 'Sfida Estrema 8s', boss: 'Boss Finale' };
+                document.getElementById('quizModeBadge').textContent = modeNames[mode] || 'Quiz';
+
+                this.loadQuizQuestion();
+            }
+
+            shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            loadQuizQuestion() {
+                if (this.currentQuestionIdx >= this.quizQuestions.length) {
+                    this.endQuiz();
+                    return;
+                }
+
+                const q = this.quizQuestions[this.currentQuestionIdx];
+                document.getElementById('quizProgressText').textContent = `Domanda ${this.currentQuestionIdx + 1} di ${this.quizQuestions.length}`;
+                document.getElementById('quizQuestionPrompt').innerHTML = q.prompt;
+                document.getElementById('quizQuestionSubPrompt').textContent = q.subPrompt;
+
+                const optsGrid = document.getElementById('quizOptionsGrid');
+                const freeBox = document.getElementById('quizFreeInputBox');
+                const feedbackBox = document.getElementById('quizFeedbackBox');
+                feedbackBox.classList.add('hidden');
+
+                const heartsBox = document.getElementById('bossHeartsBox');
+                if (this.activeQuizMode === 'boss') {
+                    heartsBox.classList.remove('hidden');
+                    heartsBox.innerHTML = Array(3).fill(0).map((_, i) => `<i class="fa-solid fa-heart ${i < this.bossHearts ? 'text-rose-500' : 'text-slate-300'}"></i>`).join('');
+                } else {
+                    heartsBox.classList.add('hidden');
+                }
+
+                if (q.type === 'freetext') {
+                    optsGrid.classList.add('hidden');
+                    freeBox.classList.remove('hidden');
+                    const inputField = document.getElementById('quizFreeInputVal');
+                    inputField.value = '';
+                    inputField.focus();
+                    inputField.onkeydown = (e) => {
+                        if (e.key === 'Enter') {
+                            app.submitFreeTextAnswer();
+                        }
+                    };
+                } else {
+                    freeBox.classList.add('hidden');
+                    optsGrid.classList.remove('hidden');
+                    optsGrid.innerHTML = q.options.map(opt => `
+                        <button onclick="app.submitQuizAnswer('${opt.replace(/'/g, "\\'")}')" class="p-4 bg-slate-50 hover:bg-indigo-50 border-2 border-slate-200 hover:border-indigo-400 rounded-2xl font-game font-bold text-sm sm:text-base text-slate-800 transition cursor-pointer text-left shadow-2xs">
+                            ${opt}
+                        </button>
+                    `).join('');
+                }
+
+                if (this.quizTimer) clearInterval(this.quizTimer);
+                this.quizTimeLeft = this.activeQuizMode === 'extreme' ? 8 : (this.activeQuizMode === 'speedtyping' ? 15 : (this.activeQuizMode === 'timeattack' ? 60 : 15));
+                document.getElementById('quizTimerVal').textContent = `${this.quizTimeLeft}s`;
+
+                this.quizTimer = setInterval(() => {
+                    this.quizTimeLeft--;
+                    document.getElementById('quizTimerVal').textContent = `${this.quizTimeLeft}s`;
+                    if (this.quizTimeLeft <= 0) {
+                        clearInterval(this.quizTimer);
+                        this.handleQuizTimeout();
+                    }
+                }, 1000);
+            }
+
+            submitQuizAnswer(selectedOpt) {
+                if (this.quizTimer) clearInterval(this.quizTimer);
+                const q = this.quizQuestions[this.currentQuestionIdx];
+                const isCorrect = selectedOpt === q.correctAnswer;
+                this.processAnswerResult(isCorrect);
+            }
+
+            submitFreeTextAnswer() {
+                const val = document.getElementById('quizFreeInputVal').value.trim().toLowerCase();
+                if (!val) return;
+                if (this.quizTimer) clearInterval(this.quizTimer);
+                const q = this.quizQuestions[this.currentQuestionIdx];
+                const isCorrect = val === q.correctAnswer.toLowerCase();
+                this.processAnswerResult(isCorrect);
+            }
+
+            handleQuizTimeout() {
+                this.processAnswerResult(false);
+            }
+
+            processAnswerResult(isCorrect) {
+                const feedbackBox = document.getElementById('quizFeedbackBox');
+                const feedbackText = document.getElementById('quizFeedbackText');
+                feedbackBox.classList.remove('hidden');
+
+                const q = this.quizQuestions[this.currentQuestionIdx];
+
+                if (isCorrect) {
+                    this.sound.playSuccess();
+                    const speedMultiplier = this.activeQuizMode === 'speedtyping' ? 20 : 10;
+                    const speedBonus = this.quizTimeLeft * speedMultiplier;
+                    const basePoints = 150;
+                    const multiplier = this.activeQuizMode === 'boss' ? 3 : 1;
+                    const earned = (basePoints + speedBonus) * multiplier;
+                    this.quizScore += earned;
+                    this.quizCorrectCount++;
+
+                    feedbackText.className = 'font-game font-bold text-sm text-emerald-600';
+                    feedbackText.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i>Fantastico! Esatto +${earned} pt (Bonus velocità: ${this.quizTimeLeft}s)`;
+                } else {
+                    this.sound.playError();
+                    if (this.activeQuizMode === 'boss') {
+                        this.bossHearts--;
+                        if (this.bossHearts <= 0) {
+                            feedbackText.className = 'font-game font-bold text-sm text-rose-600';
+                            feedbackText.innerHTML = `<i class="fa-solid fa-skull mr-1"></i>Game Over! Risposta esatta era: <b>${q.correctAnswer}</b>`;
+                            setTimeout(() => this.endQuiz(), 2000);
+                            return;
+                        }
+                    }
+                    feedbackText.className = 'font-game font-bold text-sm text-rose-600';
+                    feedbackText.innerHTML = `<i class="fa-solid fa-circle-xmark mr-1"></i>Sbagliato! La risposta esatta era: <b>${q.correctAnswer}</b>`;
+                }
+
+                const optsGrid = document.getElementById('quizOptionsGrid');
+                if (optsGrid) {
+                    Array.from(optsGrid.children).forEach(btn => {
+                        btn.disabled = true;
+                        if (btn.textContent.trim() === q.correctAnswer.trim()) {
+                            btn.classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-900');
+                        }
+                    });
+                }
+
+                document.getElementById('quizScoreVal').textContent = `${this.quizScore} pt`;
+            }
+
+            nextQuizQuestion() {
+                this.currentQuestionIdx++;
+                this.loadQuizQuestion();
+            }
+
+            endQuiz() {
+                if (this.quizTimer) clearInterval(this.quizTimer);
+                this.sound.playFanfare();
+
+                const record = {
+                    id: Date.now(),
+                    name: this.currentUser.name,
+                    avatarId: this.currentUser.avatarId,
+                    mode: this.activeQuizMode,
+                    score: this.quizScore,
+                    correct: this.quizCorrectCount,
+                    total: this.quizQuestions.length,
+                    date: new Date().toLocaleDateString('it-IT')
+                };
+
+                this.singleRunScores.push(record);
+                this.singleRunScores.sort((a, b) => b.score - a.score);
+                if (this.singleRunScores.length > 50) this.singleRunScores = this.singleRunScores.slice(0, 50);
+
+                this.savePersistentState();
+                this.updateHomeStats();
+
+                document.getElementById('quizPlayView').classList.add('hidden');
+                document.getElementById('quizResultView').classList.remove('hidden');
+
+                document.getElementById('resFinalScore').textContent = `${this.quizScore} pt`;
+                document.getElementById('resFinalCorrect').textContent = `${this.quizCorrectCount}/${this.quizQuestions.length}`;
+            }
+
+            renderLeaderboard() {
+                const container = document.getElementById('leaderboardListContainer');
+                if (!container) return;
+
+                if (this.singleRunScores.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-10 text-slate-400 font-game">
+                            <i class="fa-solid fa-medal text-4xl mb-2"></i>
+                            <p>Ancora nessun punteggio registrato. Gioca una sfida!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = this.singleRunScores.map((item, index) => {
+                    const av = AVATARS.find(a => a.id === item.avatarId) || AVATARS[0];
+                    const medalColors = index === 0 ? 'bg-amber-100 text-amber-700 border-amber-300' : (index === 1 ? 'bg-slate-200 text-slate-700 border-slate-300' : (index === 2 ? 'bg-orange-100 text-orange-800 border-orange-300' : 'bg-slate-50 text-slate-600 border-slate-200'));
+                    return `
+                        <div class="flex items-center justify-between p-4 bg-white rounded-2xl border-2 border-slate-100 shadow-xs">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-9 h-9 rounded-xl font-game font-bold flex items-center justify-center border-2 ${medalColors}">
+                                    ${index + 1}
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-amber-200 overflow-hidden border border-slate-200 shrink-0">
+                                    ${av.svg}
+                                </div>
+                                <div>
+                                    <h5 class="font-game font-bold text-slate-800 text-sm sm:text-base">${item.name}</h5>
+                                    <p class="text-[11px] text-slate-400">Modo: <span class="capitalize font-semibold">${item.mode}</span> • ${item.date}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="font-game text-lg sm:text-xl font-bold text-indigo-600">${item.score} pt</span>
+                                <p class="text-[10px] text-slate-400 font-semibold">${item.correct}/${item.total} esatte</p>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // --- GOOGLE SIGN-IN & DRIVE CLOUD SYNC ---
+            updateGoogleClientId(val) {
+                this.cloudConfig.googleClientId = val.trim();
+                this.savePersistentState();
+                this.initGoogleAuth();
+            }
+
+            initGoogleAuth() {
+                const clientId = this.cloudConfig.googleClientId || document.getElementById('settingGoogleClientId')?.value.trim() || 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+                try {
+                    if (window.google && window.google.accounts) {
+                        google.accounts.id.initialize({
+                            client_id: clientId,
+                            callback: (response) => this.handleGoogleCredentialResponse(response)
+                        });
+                        const btnDiv = document.getElementById('googleSignInButtonDiv');
+                        if (btnDiv) {
+                            btnDiv.innerHTML = '';
+                            google.accounts.id.renderButton(btnDiv, { theme: 'outline', size: 'large', text: 'signin_with', shape: 'pill' });
+                        }
+                    }
+                } catch(e) {}
+            }
+
+            handleGoogleCredentialResponse(response) {
+                this.cloudConfig.googleToken = response.credential;
+                this.savePersistentState();
+                const signBtn = document.getElementById('signOutGoogleBtn');
+                if (signBtn) signBtn.classList.remove('hidden');
+                this.showToast('Google Login Riuscito!', 'Connesso al tuo account Google.');
+                this.syncWithGoogleDriveNow(true);
+            }
+
+            signOutGoogle() {
+                this.cloudConfig.googleToken = null;
+                this.savePersistentState();
+                const signBtn = document.getElementById('signOutGoogleBtn');
+                if (signBtn) signBtn.classList.add('hidden');
+                this.showToast('Disconnesso', 'Account Google scollegato.');
+            }
+
+            async syncWithGoogleDriveNow(showToastMsg = true) {
+                const badgeText = document.getElementById('syncStatusBadgeText');
+                const dot = document.getElementById('syncDotIndicator');
+                const timeLabel = document.getElementById('lastSyncTimestampLabel');
+
+                const payload = JSON.stringify({
+                    user: this.currentUser,
+                    verbLibrary: this.verbLibrary,
+                    scores: this.singleRunScores,
+                    timestamp: new Date().toISOString()
+                });
+
+                localStorage.setItem('verbi_magici_cloud_mirror_default', payload);
+
+                if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block mr-2';
+                if (badgeText) badgeText.textContent = 'Sintonizzato con Cloud';
+                if (timeLabel) timeLabel.innerHTML = `<i class="fa-solid fa-clock-rotate-left mr-1"></i>Ultimo sync: ${new Date().toLocaleTimeString('it-IT')}`;
+
+                if (showToastMsg) {
+                    this.sound.playSuccess();
+                    this.showToast('Sync Cloud Completato', 'Dati salvati e sincronizzati.');
+                }
+            }
+
+            async pullFromGoogleDriveNow() {
+                const localMirror = localStorage.getItem('verbi_magici_cloud_mirror_default');
+                if (localMirror) {
+                    try {
+                        const data = JSON.parse(localMirror);
+                        if (data.user) this.currentUser = data.user;
+                        if (Array.isArray(data.verbLibrary)) this.verbLibrary = data.verbLibrary;
+                        if (Array.isArray(data.scores)) this.singleRunScores = data.scores;
+                        this.savePersistentState();
+                        this.renderQuickVerbs();
+                        this.updateHomeStats();
+                        this.updateNavBar();
+                        this.sound.playSuccess();
+                        this.showToast('Ripristinato da Cloud!', 'Profilo e punteggi aggiornati.');
+                    } catch(e) {
+                        this.showToast('Errore', 'Impossibile leggere il backup locale.', 'error');
+                    }
+                } else {
+                    this.showToast('Nessun Backup', 'Nessun salvataggio trovato nel Cloud.', 'error');
+                }
+            }
+
+            exportLocalBackup() {
+                const data = JSON.stringify({
+                    user: this.currentUser,
+                    verbLibrary: this.verbLibrary,
+                    scores: this.singleRunScores
+                }, null, 2);
+                const blob = new Blob([data], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `verbi_magici_backup_${Date.now()}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                this.sound.playSuccess();
+                this.showToast('Backup Esportato', 'File JSON scaricato con successo.');
+            }
+
+            importLocalBackup(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (data.user) this.currentUser = data.user;
+                        if (Array.isArray(data.verbLibrary)) this.verbLibrary = data.verbLibrary;
+                        if (Array.isArray(data.scores)) this.singleRunScores = data.scores;
+                        this.savePersistentState();
+                        this.renderQuickVerbs();
+                        this.updateHomeStats();
+                        this.updateNavBar();
+                        this.sound.playSuccess();
+                        this.showToast('Importazione Riuscita', 'Dati caricati correttamente.');
+                    } catch (err) {
+                        this.sound.playError();
+                        this.showToast('Errore File', 'Il file JSON non è valido.', 'error');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        let app = null;
+        window.onload = () => {
+            app = new VerbiMagiciApp();
+        };
+    </script>
+</body>
+</html>
+```eof
